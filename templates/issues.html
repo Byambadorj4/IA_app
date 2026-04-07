@@ -1,0 +1,749 @@
+{% extends "base.html" %}
+{% block title %}Нийт бүртгэгдсэн асуудал{% endblock %}
+{% block main_class %}main--wide{% endblock %}
+{% block content %}
+
+<style>
+    :root {
+        --ink: #0f172a;
+        --muted: #64748b;
+        --border: #e5e7eb;
+        --card: #fff;
+        --shadow: 0 12px 28px rgba(2,6,23,.06);
+        --radius: 18px;
+        --ok-bg: #ecfdf5;
+        --ok-tx: #166534;
+        --warn-bg: #fffbeb;
+        --warn-tx: #92400e;
+        --bad-bg: #fff1f2;
+        --bad-tx: #9f1239;
+        --filter-bg: #f8fafc;
+        --filter-border: #dbe2ea;
+        --filter-focus: #2563eb;
+    }
+
+    main.main--wide, .main--wide, main, .container {
+        max-width: none !important;
+        width: 100% !important;
+    }
+
+    .page {
+        width: 100%;
+        margin: 0;
+        padding: 10px 18px 22px;
+        box-sizing: border-box;
+    }
+
+    .head {
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        box-shadow: var(--shadow);
+        padding: 16px 18px;
+        display: flex;
+        align-items: center;
+        justify-content: flex-start;
+        gap: 12px;
+        flex-wrap: wrap;
+    }
+
+    .title {
+        font-size: 20px;
+        line-height: 1.2;
+        font-weight: 900;
+        color: var(--ink);
+        margin: 0;
+    }
+
+    .sub {
+        margin-top: 6px;
+        font-size: 12px;
+        color: var(--muted);
+    }
+
+    .filters {
+        margin-top: 14px;
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        box-shadow: var(--shadow);
+        padding: 14px 16px;
+    }
+
+    .filters-bar {
+        display: grid;
+        grid-template-columns: 1.5fr 1fr 1fr auto;
+        gap: 12px;
+        align-items: end;
+    }
+
+    .filter-group {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+    }
+
+    .filter-label {
+        font-size: 12px;
+        font-weight: 800;
+        color: var(--ink);
+    }
+
+    .filter-input,
+    .filter-select {
+        height: 42px;
+        border: 1px solid var(--filter-border);
+        border-radius: 12px;
+        background: var(--filter-bg);
+        padding: 0 14px;
+        font-size: 13px;
+        color: var(--ink);
+        outline: none;
+        width: 100%;
+        box-sizing: border-box;
+    }
+
+        .filter-input:focus,
+        .filter-select:focus {
+            border-color: var(--filter-focus);
+            background: #fff;
+            box-shadow: 0 0 0 3px rgba(37,99,235,.10);
+        }
+
+    .filter-actions {
+        display: flex;
+        align-items: end;
+        gap: 8px;
+    }
+
+    .btn-filter {
+        height: 42px;
+        border-radius: 12px;
+        border: 1px solid var(--border);
+        background: #fff;
+        padding: 0 14px;
+        font-size: 12px;
+        font-weight: 900;
+        color: var(--ink);
+        cursor: pointer;
+        white-space: nowrap;
+    }
+
+        .btn-filter:hover {
+            filter: brightness(.98);
+        }
+
+    .filter-meta {
+        margin-top: 10px;
+        font-size: 12px;
+        color: var(--muted);
+    }
+
+    .card {
+        margin-top: 14px;
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        box-shadow: var(--shadow);
+        overflow: hidden;
+    }
+
+    .table-wrap {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    table.tbl {
+        width: 100%;
+        min-width: 1400px;
+        border-collapse: separate;
+        border-spacing: 0;
+        table-layout: fixed;
+    }
+
+    .tbl thead th {
+        position: sticky;
+        top: 0;
+        z-index: 2;
+        background: #fbfdff;
+        font-weight: 800;
+        color: var(--ink);
+        font-size: 12px;
+        text-align: left;
+        padding: 14px 12px;
+        border-bottom: 1px solid #eef2f7;
+        white-space: nowrap;
+    }
+
+    .tbl tbody td {
+        padding: 16px 12px;
+        border-bottom: 1px solid #f1f5f9;
+        vertical-align: top;
+        font-size: 12px;
+        color: var(--ink);
+        line-height: 1.45;
+        overflow-wrap: anywhere;
+    }
+
+    .tbl tbody tr:hover td {
+        background: #fbfdff;
+    }
+
+    .col-id {
+        width: 56px;
+    }
+
+    .col-company {
+        width: 150px;
+    }
+
+    .col-issue {
+        width: 420px;
+    }
+
+    .col-rec {
+        width: 420px;
+    }
+
+    .col-ctl {
+        width: 90px;
+    }
+
+    .col-money {
+        width: 120px;
+    }
+
+    .col-aud {
+        width: 140px;
+    }
+
+    .col-date {
+        width: 110px;
+    }
+
+    .col-risk {
+        width: 90px;
+    }
+
+    .col-acts {
+        width: 130px;
+    }
+
+    .muted {
+        color: var(--muted);
+    }
+
+    .money {
+        font-variant-numeric: tabular-nums;
+        font-weight: 900;
+        white-space: nowrap;
+    }
+
+    .cell-scroll {
+        max-height: 110px;
+        overflow: auto;
+        padding-right: 8px;
+        white-space: pre-wrap;
+        word-break: break-word;
+        border-radius: 10px;
+    }
+
+        .cell-scroll::-webkit-scrollbar {
+            width: 10px;
+        }
+
+        .cell-scroll::-webkit-scrollbar-thumb {
+            background: rgba(148,163,184,.65);
+            border-radius: 999px;
+            border: 2px solid rgba(255,255,255,.8);
+        }
+
+        .cell-scroll::-webkit-scrollbar-track {
+            background: rgba(241,245,249,.8);
+            border-radius: 999px;
+        }
+
+    .pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 6px 10px;
+        border-radius: 999px;
+        font-size: 11px;
+        font-weight: 900;
+        white-space: nowrap;
+        border: 1px solid rgba(15,23,42,.08);
+        line-height: 1;
+    }
+
+        .pill.ok {
+            background: var(--ok-bg);
+            color: var(--ok-tx);
+        }
+
+        .pill.warn {
+            background: var(--warn-bg);
+            color: var(--warn-tx);
+        }
+
+        .pill.bad {
+            background: var(--bad-bg);
+            color: var(--bad-tx);
+        }
+
+    @keyframes blinkRed {
+        0%, 100% {
+            box-shadow: 0 0 0 0 rgba(239,68,68,.0);
+        }
+
+        50% {
+            box-shadow: 0 0 0 6px rgba(239,68,68,.22);
+        }
+    }
+
+    .pill.blink-high {
+        animation: blinkRed 1s ease-in-out infinite;
+        border-color: rgba(239,68,68,.35);
+    }
+
+    .acts {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .btn-mini {
+        height: 34px;
+        border-radius: 999px;
+        border: 1px solid var(--border);
+        background: #fff;
+        font-size: 11px;
+        font-weight: 900;
+        cursor: pointer;
+        text-decoration: none;
+        color: var(--ink);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        user-select: none;
+        padding: 0 10px;
+        width: 100%;
+        outline: none;
+        white-space: nowrap;
+    }
+
+        .btn-mini:hover {
+            filter: brightness(.98);
+        }
+
+        .btn-mini:active {
+            transform: translateY(.5px);
+        }
+
+        .btn-mini.edit {
+            background: #eff6ff;
+            color: #1d4ed8;
+            border-color: #dbeafe;
+        }
+
+        .btn-mini.del {
+            background: #fff1f2;
+            color: #9f1239;
+            border-color: #ffe4e6;
+        }
+
+    .acts form {
+        margin: 0;
+    }
+
+    .empty-filter-row {
+        display: none;
+    }
+
+        .empty-filter-row.show {
+            display: table-row;
+        }
+
+    .empty-filter-cell {
+        text-align: center;
+        color: var(--muted);
+        padding: 18px 12px;
+        font-size: 13px;
+    }
+
+    @media (max-width: 1100px) {
+        .filters-bar {
+            grid-template-columns: 1fr 1fr;
+        }
+
+        .filter-actions {
+            grid-column: 1 / -1;
+        }
+    }
+
+    @media (max-width: 860px) {
+        .card {
+            overflow: visible;
+            background: transparent;
+            border: none;
+            box-shadow: none;
+        }
+
+        .filters {
+            padding: 14px;
+        }
+
+        .filters-bar {
+            grid-template-columns: 1fr;
+        }
+
+        .table-wrap {
+            overflow: visible;
+        }
+
+        .tbl, .tbl thead, .tbl tbody, .tbl th, .tbl td, .tbl tr {
+            display: block;
+            width: 100%;
+            min-width: unset;
+        }
+
+            .tbl thead {
+                display: none;
+            }
+
+            .tbl tbody tr {
+                background: var(--card);
+                border: 1px solid var(--border);
+                border-radius: 16px;
+                box-shadow: var(--shadow);
+                margin-top: 12px;
+                overflow: hidden;
+            }
+
+            .tbl tbody td {
+                border-bottom: 1px solid #f1f5f9;
+                padding: 12px 12px;
+                display: flex;
+                gap: 12px;
+                align-items: flex-start;
+                line-height: 1.45;
+            }
+
+                .tbl tbody td:last-child {
+                    border-bottom: none;
+                }
+
+                .tbl tbody td::before {
+                    content: attr(data-label);
+                    flex: 0 0 120px;
+                    font-weight: 900;
+                    color: var(--muted);
+                    font-size: 11px;
+                    line-height: 1.2;
+                    padding-top: 2px;
+                }
+
+        .acts {
+            flex-direction: row;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .btn-mini {
+            width: auto;
+            height: 34px;
+            padding: 0 14px;
+        }
+
+        .cell-scroll {
+            max-height: 140px;
+        }
+
+        .empty-filter-row.show {
+            display: block;
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            box-shadow: var(--shadow);
+            margin-top: 12px;
+        }
+
+            .empty-filter-row.show td {
+                display: block;
+                width: 100%;
+                border: none;
+            }
+
+                .empty-filter-row.show td::before {
+                    display: none;
+                }
+    }
+
+    @media (max-width: 420px) {
+        .page {
+            padding: 10px 12px 18px;
+        }
+
+        .head {
+            padding: 14px 14px;
+        }
+
+        .tbl tbody td::before {
+            flex-basis: 100px;
+        }
+    }
+</style>
+
+<div class="page">
+    <div class="head">
+        <div>
+            <div class="title">Асуудлын жагсаалт</div>
+            <div class="sub">Нийт бүртгэл: <b id="visibleCount">{{ issues|length }}</b> / <b>{{ issues|length }}</b></div>
+        </div>
+    </div>
+
+    <div class="filters">
+        <div class="filters-bar">
+            <div class="filter-group">
+                <label class="filter-label" for="globalSearch">Ерөнхий хайлт</label>
+                <input id="globalSearch"
+                       class="filter-input"
+                       type="text"
+                       placeholder="Компани, аудитор, асуудал, зөвлөмжөөр хайх...">
+            </div>
+
+            <div class="filter-group">
+                <label class="filter-label" for="companyFilter">Компани</label>
+                <select id="companyFilter" class="filter-select">
+                    <option value="">Бүгд</option>
+                    {% set ns_company = namespace(seen=[]) %}
+                    {% for it in issues %}
+                    {% set company = (it.company_name or '—')|trim %}
+                    {% if company not in ns_company.seen %}
+                    <option value="{{ company }}">{{ company }}</option>
+                    {% set ns_company.seen = ns_company.seen + [company] %}
+                    {% endif %}
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="filter-group">
+                <label class="filter-label" for="auditorFilter">Аудитор</label>
+                <select id="auditorFilter" class="filter-select">
+                    <option value="">Бүгд</option>
+                    {% set ns_auditor = namespace(seen=[]) %}
+                    {% for it in issues %}
+                    {% set auditor = (it.auditor_name or '—')|trim %}
+                    {% if auditor not in ns_auditor.seen %}
+                    <option value="{{ auditor }}">{{ auditor }}</option>
+                    {% set ns_auditor.seen = ns_auditor.seen + [auditor] %}
+                    {% endif %}
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="filter-actions">
+                <button type="button" class="btn-filter" id="resetFilters">Цэвэрлэх</button>
+            </div>
+        </div>
+
+        <div class="filter-meta">
+            Харагдаж буй мөр: <b id="filterCount">{{ issues|length }}</b>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="table-wrap">
+            <table class="tbl" id="issuesTable">
+                <thead>
+                    <tr>
+                        <th class="col-id">ID</th>
+                        <th class="col-company">Компани</th>
+                        <th class="col-issue">Бүртгэсэн асуудал</th>
+                        <th class="col-rec">Аудитын зөвлөмж</th>
+                        <th class="col-ctl">Хяналт %</th>
+                        <th class="col-money">Мөнгөн хохирол</th>
+                        <th class="col-aud">Аудитор</th>
+                        <th class="col-date">Огноо</th>
+                        <th class="col-risk">Эрсдэл</th>
+                        <th class="col-acts">Үйлдэл</th>
+                    </tr>
+                </thead>
+
+                <tbody id="issuesTableBody">
+                    {% for it in issues %}
+                    {% set lvl = it.residual_level %}
+
+                    {% set raw_amt = (it.money_amount or '')|string %}
+                    {% set s = raw_amt
+                    | replace('₮','')
+                    | replace('MNT','')
+                    | replace('mnt','')
+                    | replace(',','')
+                    | replace(' ','')
+                    | replace('\u00a0','')
+                    %}
+                    {% set digits = s|replace('.','') %}
+                    {% if digits.isdigit() %}
+                    {% set amt_int = s.split('.')[0]|int %}
+                    {% else %}
+                    {% set amt_int = none %}
+                    {% endif %}
+
+                    {% set company_text = it.company_name or '—' %}
+                    {% set auditor_text = it.auditor_name or '—' %}
+                    {% set issue_text = it.issue or it.detail_issue or '—' %}
+                    {% set rec_text = it.recommendation or it.issue_text or '—' %}
+                    {% set control_text = it.control_pct|string if it.control_pct else '—' %}
+                    {% set date_text = it.identified_date.strftime('%Y-%m-%d') if it.identified_date else '—' %}
+                    {% set risk_text = lvl or '—' %}
+                    {% set money_text = "{:,.0f} ₮".format(amt_int) if amt_int is not none else '—' %}
+
+                    <tr class="issue-row"
+                        data-company="{{ company_text|lower|trim }}"
+                        data-auditor="{{ auditor_text|lower|trim }}"
+                        data-search="{{ (company_text ~ ' ' ~ auditor_text ~ ' ' ~ issue_text ~ ' ' ~ rec_text ~ ' ' ~ control_text ~ ' ' ~ date_text ~ ' ' ~ risk_text ~ ' ' ~ money_text)|lower }}">
+                        <td data-label="ID">#{{ it.id }}</td>
+                        <td data-label="Компани">{{ company_text }}</td>
+
+                        <td data-label="Бүртгэсэн асуудал" class="muted">
+                            <div class="cell-scroll">{{ issue_text }}</div>
+                        </td>
+
+                        <td data-label="Аудитын зөвлөмж">
+                            <div class="cell-scroll">{{ rec_text }}</div>
+                        </td>
+
+                        <td data-label="Хяналт %">
+                            {% if it.control_pct %}
+                            {{ it.control_pct }}{% if '%' not in it.control_pct|string %}%{% endif %}
+                            {% else %}
+                            —
+                            {% endif %}
+                        </td>
+
+                        <td data-label="Мөнгөн хохирол" class="money">
+                            {% if amt_int is not none %}
+                            {{ "{:,.0f}".format(amt_int) }} ₮
+                            {% else %}
+                            —
+                            {% endif %}
+                        </td>
+
+                        <td data-label="Аудитор">{{ auditor_text }}</td>
+                        <td data-label="Огноо">{{ date_text }}</td>
+
+                        <td data-label="Эрсдэл">
+                            {% if lvl == 'Өндөр' %}
+                            <span class="pill bad blink-high">Өндөр</span>
+                            {% elif lvl == 'Дунд' %}
+                            <span class="pill warn">Дунд</span>
+                            {% elif lvl == 'Бага' %}
+                            <span class="pill ok">Бага</span>
+                            {% else %}
+                            —
+                            {% endif %}
+                        </td>
+
+                        <td data-label="Үйлдэл">
+                            <div class="acts">
+                                <a class="btn-mini" href="{{ url_for('issue_detail', issue_id=it.id) }}">Дэлгэрэнгүй</a>
+
+                                {% if current_user.is_admin %}
+                                <a class="btn-mini edit" href="{{ url_for('edit_issue', issue_id=it.id) }}">Засах</a>
+
+                                <form method="post" action="{{ url_for('delete_issue', issue_id=it.id) }}"
+                                      onsubmit="return confirm('Устгах уу?');">
+                                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                    <button class="btn-mini del" type="submit">Устгах</button>
+                                </form>
+                                {% endif %}
+                            </div>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td data-label="Мэдээлэл" colspan="10" class="muted">Мэдээлэл алга байна.</td>
+                    </tr>
+                    {% endfor %}
+
+                    <tr id="emptyFilterRow" class="empty-filter-row">
+                        <td colspan="10" class="empty-filter-cell">Шүүлтүүрт тохирох мэдээлэл олдсонгүй.</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script>
+    (function () {
+        const globalSearch = document.getElementById('globalSearch');
+        const companyFilter = document.getElementById('companyFilter');
+        const auditorFilter = document.getElementById('auditorFilter');
+        const resetFilters = document.getElementById('resetFilters');
+        const rows = Array.from(document.querySelectorAll('.issue-row'));
+        const filterCount = document.getElementById('filterCount');
+        const visibleCount = document.getElementById('visibleCount');
+        const emptyRow = document.getElementById('emptyFilterRow');
+
+        function normalize(value) {
+            return (value || '').toString().trim().toLowerCase();
+        }
+
+        function applyFilters() {
+            const q = normalize(globalSearch.value);
+            const company = normalize(companyFilter.value);
+            const auditor = normalize(auditorFilter.value);
+
+            let visible = 0;
+
+            rows.forEach(row => {
+                const rowCompany = normalize(row.dataset.company);
+                const rowAuditor = normalize(row.dataset.auditor);
+                const rowSearch = normalize(row.dataset.search);
+
+                const matchSearch = !q || rowSearch.includes(q);
+                const matchCompany = !company || rowCompany === company;
+                const matchAuditor = !auditor || rowAuditor === auditor;
+
+                const show = matchSearch && matchCompany && matchAuditor;
+                row.style.display = show ? '' : 'none';
+
+                if (show) visible++;
+            });
+
+            filterCount.textContent = visible;
+            visibleCount.textContent = visible;
+
+            if (emptyRow) {
+                emptyRow.classList.toggle('show', visible === 0);
+            }
+        }
+
+        if (globalSearch) {
+            globalSearch.addEventListener('input', applyFilters);
+        }
+
+        if (companyFilter) {
+            companyFilter.addEventListener('change', applyFilters);
+        }
+
+        if (auditorFilter) {
+            auditorFilter.addEventListener('change', applyFilters);
+        }
+
+        if (resetFilters) {
+            resetFilters.addEventListener('click', function () {
+                globalSearch.value = '';
+                companyFilter.value = '';
+                auditorFilter.value = '';
+                applyFilters();
+            });
+        }
+
+        applyFilters();
+    })();
+</script>
+
+{% endblock %}

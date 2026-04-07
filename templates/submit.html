@@ -1,0 +1,910 @@
+{% extends "base.html" %}
+{% block title %}Шинээр асуудал бүртгэх{% endblock %}
+{% block content %}
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;800;900&display=swap" rel="stylesheet">
+
+<style>
+    :root {
+        --font: 'Montserrat',system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
+        --ink: #0f172a;
+        --muted: #6b7280;
+        --border: #dde3ea;
+        --g: #16a34a;
+        --g-weak: #ecfdf5;
+        --b: #2563eb;
+        --b-weak: #eff6ff;
+        --a: #f97316;
+        --a-weak: #fff7ed;
+        --r: #ef4444;
+        --r-weak: #fff1f2;
+        --shadow: 0 10px 28px rgba(2,6,23,.06);
+        --primary: #0b5f57;
+    }
+
+    * {
+        font-family: var(--font) !important;
+        box-sizing: border-box;
+    }
+
+    .page {
+        max-width: 1060px;
+        margin: 0 auto;
+        padding: 10px 0 28px
+    }
+
+    .h1 {
+        font-weight: 900;
+        font-size: 28px;
+        margin: 4px 0 14px;
+        color: var(--ink)
+    }
+
+    .sec {
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: var(--shadow);
+        margin: 12px 0;
+        background: #fff
+    }
+
+        .sec > header {
+            padding: 10px 14px;
+            font-weight: 900;
+            color: #fff;
+            font-size: 13px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between
+        }
+
+        .sec .body {
+            padding: 12px 14px;
+            background: #fff
+        }
+
+    .sec--g > header {
+        background: linear-gradient(90deg,#16a34a,#22c55e)
+    }
+
+    .sec--g .body {
+        background: var(--g-weak)
+    }
+
+    .sec--b > header {
+        background: #2563eb
+    }
+
+    .sec--b .body {
+        background: var(--b-weak)
+    }
+
+    .sec--a > header {
+        background: #f97316
+    }
+
+    .sec--a .body {
+        background: var(--a-weak)
+    }
+
+    .sec--r > header {
+        background: #ef4444
+    }
+
+    .sec--r .body {
+        background: var(--r-weak)
+    }
+
+    .grid {
+        display: grid;
+        gap: 10px
+    }
+
+    .g3 {
+        grid-template-columns: repeat(3,1fr)
+    }
+
+    @media(max-width:980px) {
+        .g3 {
+            grid-template-columns: repeat(2,1fr)
+        }
+    }
+
+    @media(max-width:720px) {
+        .g3 {
+            grid-template-columns: 1fr
+        }
+    }
+
+    .full {
+        grid-column: 1/-1
+    }
+
+    .field {
+        display: flex;
+        flex-direction: column;
+        gap: 6px
+    }
+
+    label {
+        font-weight: 900;
+        font-size: 13px;
+        color: var(--ink)
+    }
+
+    input, select, textarea {
+        width: 100%;
+        border: 1px solid #d7dee7;
+        border-radius: 10px;
+        padding: 9px 11px;
+        background: #fff;
+        color: var(--ink);
+        font-size: 13px;
+        outline: none
+    }
+
+    input, select {
+        height: 38px
+    }
+
+    textarea {
+        resize: vertical;
+        line-height: 1.45;
+        min-height: 78px
+    }
+
+        textarea.big {
+            min-height: 88px
+        }
+
+        textarea.mid {
+            min-height: 82px
+        }
+
+        input:focus, select:focus, textarea:focus {
+            border-color: #60a5fa;
+            box-shadow: 0 0 0 3px rgba(96,165,250,.18)
+        }
+
+    .hr {
+        height: 1px;
+        background: rgba(148,163,184,.35);
+        margin: 8px 0
+    }
+
+    .row {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+        flex-wrap: wrap
+    }
+
+    .small-btn {
+        background: #e5e7eb;
+        border: 1px solid #cbd5e1;
+        padding: 8px 12px;
+        border-radius: 999px;
+        cursor: pointer;
+        font-weight: 900;
+        color: #0f172a
+    }
+
+        .small-btn:hover {
+            filter: brightness(.97)
+        }
+
+    .hidden {
+        display: none
+    }
+
+    .actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 10px;
+        margin-top: 10px
+    }
+
+    .btn {
+        background: var(--primary);
+        border: 1px solid var(--primary);
+        color: #fff;
+        padding: 10px 18px;
+        border-radius: 999px;
+        font-weight: 900;
+        cursor: pointer;
+        min-width: 220px
+    }
+
+        .btn:hover {
+            filter: brightness(.95)
+        }
+
+    .tiles {
+        display: grid;
+        grid-template-columns: repeat(3,1fr);
+        gap: 10px;
+        margin-top: 10px
+    }
+
+    @media(max-width:720px) {
+        .tiles {
+            grid-template-columns: 1fr
+        }
+    }
+
+    .tile {
+        border-radius: 12px;
+        padding: 14px;
+        text-align: center;
+        color: #fff;
+        background: #0a69c9
+    }
+
+        .tile .value {
+            font-size: 16px;
+            font-weight: 900;
+            margin-top: 4px
+        }
+
+        .tile.level.low {
+            background: #00b050
+        }
+
+        .tile.level.med {
+            background: #ffc000;
+            color: #111
+        }
+
+        .tile.level.high {
+            background: #ee0000
+        }
+
+    .ctrl-card {
+        grid-column: 1 / -1;
+        background: #fff;
+        border: 1px solid rgba(203,213,225,.95);
+        border-radius: 16px;
+        padding: 14px 16px;
+        box-shadow: 0 10px 22px rgba(2,6,23,.06);
+        display: flex;
+        gap: 14px;
+        align-items: center;
+        justify-content: space-between;
+        margin-top: 6px;
+    }
+
+    .ctrl-left {
+        display: flex;
+        flex-direction: column;
+        gap: 4px
+    }
+
+    .ctrl-title {
+        font-weight: 900;
+        color: #0f172a;
+        font-size: 16px;
+        letter-spacing: .2px
+    }
+
+    .ctrl-right {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-end;
+        gap: 8px;
+        min-width: 220px
+    }
+
+    .ctrl-value {
+        font-size: 28px;
+        font-weight: 900;
+        line-height: 1;
+        color: #0f172a
+    }
+
+    .ctrl-pill {
+        font-size: 12px;
+        font-weight: 900;
+        padding: 6px 10px;
+        border-radius: 999px;
+        background: #f1f5f9;
+        color: #0f172a
+    }
+
+    .ctrl-bar {
+        width: 100%;
+        height: 10px;
+        border-radius: 999px;
+        background: #e5e7eb;
+        overflow: hidden
+    }
+
+        .ctrl-bar > div {
+            height: 100%;
+            width: 0%;
+            border-radius: 999px;
+            transition: width .25s ease
+        }
+
+    .ctrl-ok {
+        background: #16a34a !important
+    }
+
+    .ctrl-mid {
+        background: #f59e0b !important
+    }
+
+    .ctrl-bad {
+        background: #ef4444 !important
+    }
+
+    @media(max-width:720px) {
+        .ctrl-card {
+            flex-direction: column;
+            align-items: flex-start
+        }
+
+        .ctrl-right {
+            align-items: flex-start;
+            width: 100%;
+            min-width: unset
+        }
+
+        .ctrl-value {
+            font-size: 26px
+        }
+    }
+</style>
+
+<div class="page">
+    <div class="h1">Асуудал шинээр бүртгэх</div>
+
+    <form method="POST" enctype="multipart/form-data" id="issueForm" novalidate>
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+        <!-- I -->
+        <section class="sec sec--g">
+            <header><span>I. Асуудлын дэлгэрэнгүй</span></header>
+
+            <div class="body grid">
+                <div class="field full">
+                    <label>Асуудал*</label>
+                    <textarea name="detail_issue" required class="big">{{ request.form.get('detail_issue','') }}</textarea>
+                </div>
+
+                <div class="grid g3 full">
+                    <div class="field">
+                        <label>Нөхцөл байдал</label>
+                        <textarea name="detail_context" class="mid">{{ request.form.get('detail_context','') }}</textarea>
+                    </div>
+                    <div class="field">
+                        <label>Шалгуур*</label>
+                        <textarea name="detail_criteria" required class="mid">{{ request.form.get('detail_criteria','') }}</textarea>
+                    </div>
+                    <div class="field">
+                        <label>Шалтгаан</label>
+                        <textarea name="detail_cause" class="mid">{{ request.form.get('detail_cause','') }}</textarea>
+                    </div>
+                </div>
+
+                <div class="grid g3 full">
+                    <div class="field">
+                        <label>Үр нөлөө*</label>
+                        <textarea name="detail_impact" required class="mid">{{ request.form.get('detail_impact','') }}</textarea>
+                    </div>
+                    <div class="field">
+                        <label>Аудитын зөвлөмж*</label>
+                        <textarea name="issue_text" required class="mid">{{ request.form.get('issue_text','') }}</textarea>
+                    </div>
+                    <div class="field">
+                        <label>Аудитын үнэ цэн</label>
+                        <textarea name="recommendation_number" class="mid">{{ request.form.get('recommendation_number','') }}</textarea>
+                    </div>
+                </div>
+
+                <div class="field full">
+                    <label>Хариу тайлбар</label>
+                    <textarea name="reply_comment" class="big">{{ request.form.get('reply_comment','') }}</textarea>
+                </div>
+
+                <div class="hr full"></div>
+
+                <div class="grid g3 full">
+                    <div class="field">
+                        <label>Зөвлөмжийг хэрэгжүүлэх эцсийн хугацаа*</label>
+                        <input type="date" name="implement_due_date" value="{{ request.form.get('implement_due_date','') }}" required>
+                    </div>
+
+                    <div class="field">
+                        <label>Материаллаг түвшин*</label>
+                        {% set mat=request.form.get('materiality','') %}
+                        <select name="materiality" required>
+                            <option value="" {{ 'selected' if not mat else '' }}>— Сонгоно уу —</option>
+                            <option value="Материаллаг" {{ 'selected' if mat=='Материаллаг' else '' }}>Материаллаг</option>
+                            <option value="Материаллаг бус" {{ 'selected' if mat=='Материаллаг бус' else '' }}>Материаллаг бус</option>
+                        </select>
+                    </div>
+
+                    <div class="field">
+                        <label>Тайлангийн нэр</label>
+                        <input name="report_name" value="{{ request.form.get('report_name','') }}">
+                    </div>
+                </div>
+
+                <div class="grid g3 full">
+                    <div class="field">
+                        <label>Компанийн нэр*</label>
+                        {% set comp=request.form.get('company_name','') %}
+                        <select name="company_name" required>
+                            <option value="" {{ 'selected' if not comp else '' }}>— Сонгоно уу —</option>
+                            {% for c in COMPANIES %}
+                            <option value="{{ c }}" {{ 'selected' if comp==c else '' }}>{{ c }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="field">
+                        <label>Эрсдэл тодорхойлсон аудитор*</label>
+                        {% set aud=request.form.get('auditor_name','') %}
+                        <select name="auditor_name" required>
+                            <option value="" {{ 'selected' if not aud else '' }}>— Сонгоно уу —</option>
+                            {% for a in AUDITORS %}
+                            <option value="{{ a }}" {{ 'selected' if aud==a else '' }}>{{ a }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="field">
+                        <label>Асуудал бүртгэсэн огноо*</label>
+                        <input type="date" name="identified_date" value="{{ request.form.get('identified_date','') }}" required>
+                    </div>
+                </div>
+
+                <div class="grid g3 full">
+                    <div class="field">
+                        <label>Мөнгөн хохирол учруулсан эсэх*</label>
+                        {% set loss=request.form.get('has_actual_loss','') %}
+                        <select name="has_actual_loss" id="has_actual_loss" required>
+                            <option value="" {{ 'selected' if not loss else '' }}>— Сонгоно уу —</option>
+                            <option value="Тийм" {{ 'selected' if loss=='Тийм' else '' }}>Тийм</option>
+                            <option value="Үгүй" {{ 'selected' if loss=='Үгүй' else '' }}>Үгүй</option>
+                        </select>
+                    </div>
+
+                    <div class="field {{ '' if loss=='Тийм' else 'hidden' }}" id="money_amount_wrap">
+                        <label>Мөнгөн дүн</label>
+                        <input name="money_amount" id="money_amount" inputmode="numeric"
+                               value="{{ request.form.get('money_amount','') }}">
+                    </div>
+
+                    <div class="field">
+                        <label>Нотлох баримт (заавал)</label>
+                        <input type="file" name="evidence_file_1" accept=".pdf,.doc,.docx,.xls,.xlsx,.png,.jpg,.jpeg" required>
+                        <div class="row" style="margin-top:8px;">
+                            <button type="button" class="small-btn" id="btnAddEvidence">+ Файл нэмэх</button>
+                            <button type="button" class="small-btn hidden" id="btnRemoveEvidence">– Хасах</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="full">
+                    <div id="evidence_more_list" class="grid g3"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- II -->
+        <section class="sec sec--b">
+            <header>II. Эрсдэл тодорхойлох</header>
+            <div class="body grid g3">
+                {% set rek=request.form.get('risk_event_kind','') %}
+                <div class="field">
+                    <label>Үүссэн эсвэл үүсэх магадлалтай эрсдэл*</label>
+                    <select name="risk_event_kind" required>
+                        <option value="" {{ 'selected' if not rek else '' }}>— Сонгоно уу —</option>
+                        <option value="Үүссэн эрсдэл" {{ 'selected' if rek=='Үүссэн эрсдэл' else '' }}>Үүссэн эрсдэл</option>
+                        <option value="Үүсэх магадлалтай эрсдэл" {{ 'selected' if rek=='Үүсэх магадлалтай эрсдэл' else '' }}>Үүсэх магадлалтай эрсдэл</option>
+                    </select>
+                </div>
+
+                {% set rf=request.form.get('risk_factor','') %}
+                {% set rf_opts=['Процессоос хамаарсан эрсдэл','Ажилтнаас хамаарсан эрсдэл','Мэдээллийн аюулгүй байдлын эрсдэл','Гадаад хүчин зүйлээс шалтгаалсан эрсдэл','Загварчлалын эрсдэл'] %}
+                <div class="field">
+                    <label>Эрсдэл үүссэн хүчин зүйл*</label>
+                    <select name="risk_factor" required>
+                        <option value="" {{ 'selected' if not rf else '' }}>— Сонгоно уу —</option>
+                        {% for o in rf_opts %}
+                        <option value="{{ o }}" {{ 'selected' if rf==o else '' }}>{{ o }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                {% set rc=request.form.get('risk_classification','') %}
+                {% set rc_opts=['Стратегийн эрсдэл','Санхүүгийн эрсдэл','Үйл ажиллагааны эрсдэл','Зохицуулалтын эрсдэл'] %}
+                <div class="field">
+                    <label>Эрсдэлийн ангилал*</label>
+                    <select name="risk_classification" required>
+                        <option value="" {{ 'selected' if not rc else '' }}>— Сонгоно уу —</option>
+                        {% for o in rc_opts %}
+                        <option value="{{ o }}" {{ 'selected' if rc==o else '' }}>{{ o }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                {% set src=request.form.get('sub_risk_classification','') %}
+                {% set src_opts=[
+                'Стратегийн эрсдэл','Бизнесийн төвлөрлийн эрсдэл','Хууль эрхзүйн эрсдэл','Нэр хүндийн эрсдэл','Зээлийн эрсдэл',
+                'Зээл чанаргүй болох эрсдэл','Харилцагч талын эрсдэл','Хөрөнгө оруулалтын эрсдэл','Барьцаа хөрөнгийн эрсдэл',
+                'Зах зээлийн эрсдэл','Хүүгийн эрсдэл','Вальютын ханшийн эрсдэл','Системийн эрсдэл','Хөрвөх чадварын эрсдэл',
+                'Төлбөр гүйцэтгэх чадварын эрсдэл','Түргэн хөрвөх чадварын эрсдэл','Урьдчилан төлөлтийн эрсдэл',
+                'Хүрээлэн буй орчны эрсдэл','Комплаенсийн эрсдэл','Хүний нөөцийн эрсдэл','Санхүүгийн тайлангийн эрсдэл',
+                'Санхүүгийн эрсдэл','Үйл ажиллагааны эрсдэл'
+                ] %}
+                <div class="field">
+                    <label>Хамааралтай эрсдэл</label>
+                    <select name="sub_risk_classification">
+                        <option value="" {{ 'selected' if not src else '' }}>— Сонгоно уу —</option>
+                        {% for o in src_opts %}
+                        <option value="{{ o }}" {{ 'selected' if src==o else '' }}>{{ o }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="field">
+                    <label>Эрсдэл хариуцагч</label>
+                    <input name="risk_owner" value="{{ request.form.get('risk_owner','') }}">
+                </div>
+            </div>
+        </section>
+
+        <!-- III -->
+        <section class="sec sec--a">
+            <header>III. Хяналтын тогтолцоо</header>
+            <div class="body grid">
+                <div class="field full">
+                    <label>Журам, дүрэм, хяналт</label>
+                    <textarea name="controls_text" class="big">{{ request.form.get('controls_text','') }}</textarea>
+                </div>
+
+                <div class="grid g3 full">
+                    <div class="field">
+                        <label>Эрсдэл бууруулахаар загварчлагдсан эсэх*</label>
+                        {% set cd=request.form.get('ctl_design','') %}
+                        <select name="ctl_design" onchange="calcControlPct()" required>
+                            <option value="" {{ 'selected' if not cd else '' }}>— Сонгоно уу —</option>
+                            <option value="4" {{ 'selected' if cd=='4' else '' }}>Эрсдэлийг бүрэн бууруулахаар загварчлагдсан</option>
+                            <option value="3" {{ 'selected' if cd=='3' else '' }}>Ихэнх эрсдэлийг бууруулахаар загварчлагдсан</option>
+                            <option value="2" {{ 'selected' if cd=='2' else '' }}>Зарим эрсдэлийг бууруулахгаар загварчлагдсан</option>
+                            <option value="1" {{ 'selected' if cd=='1' else '' }}>Ямар нэгэн эрсдэлийг бууруулахаар загварчлагдаагүй</option>
+                        </select>
+                    </div>
+
+                    <div class="field">
+                        <label>Журам, зохицуулалт хэрэгждэг эсэх*</label>
+                        {% set cop=request.form.get('ctl_operates','') %}
+                        <select name="ctl_operates" onchange="calcControlPct()" required>
+                            <option value="" {{ 'selected' if not cop else '' }}>— Сонгоно уу —</option>
+                            <option value="5" {{ 'selected' if cop=='5' else '' }}>Журам, зохицуулалтын заалт нь бүрэн хэрэгждэг</option>
+                            <option value="4" {{ 'selected' if cop=='4' else '' }}>Журам хэрэгждэг ч нэмэлт зохицуулалт шаардлагатай</option>
+                            <option value="3" {{ 'selected' if cop=='3' else '' }}>Журамтай ч алдаа дутагдал их гардаг</option>
+                            <option value="2" {{ 'selected' if cop=='2' else '' }}>Журам, зохицуулалтыг хэрэгжүүлэх боломжгүй</option>
+                            <option value="1" {{ 'selected' if cop=='1' else '' }}>Журам, зохицуулалт хэрэгждэггүй / журамлаагүй</option>
+                        </select>
+                    </div>
+
+                    <div class="field">
+                        <label>Ажилтнуудын мэдлэг ойлголт*</label>
+                        {% set ca=request.form.get('ctl_awareness','') %}
+                        <select name="ctl_awareness" onchange="calcControlPct()" required>
+                            <option value="" {{ 'selected' if not ca else '' }}>— Сонгоно уу —</option>
+                            <option value="5" {{ 'selected' if ca=='5' else '' }}>Бүрэн ойлголттой, байнга мөрддөг</option>
+                            <option value="4" {{ 'selected' if ca=='4' else '' }}>Ихэнх нь мөрддөг, сайн ойлголттой</option>
+                            <option value="3" {{ 'selected' if ca=='3' else '' }}>Зарим нь мөрддөг, сургалт шаардлагатай</option>
+                            <option value="2" {{ 'selected' if ca=='2' else '' }}>Тодорхой бүлэг нь л мэддэг</option>
+                            <option value="1" {{ 'selected' if ca=='1' else '' }}>Мэдлэг ойлголт байхгүй</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="ctrl-card" id="ctrlCard">
+                    <div class="ctrl-left">
+                        <div class="ctrl-title">Хяналтын үнэлгээ</div>
+                    </div>
+                    <div class="ctrl-right">
+                        <div class="ctrl-value" id="ctrlValue">—</div>
+                        <div class="ctrl-pill" id="ctrlPill">Тодорхойгүй</div>
+                        <div class="ctrl-bar"><div id="ctrlBar"></div></div>
+                    </div>
+
+                    <input type="hidden" id="control_pct" name="control_pct" value="{{ request.form.get('control_pct','') }}">
+                </div>
+            </div>
+        </section>
+
+        <!-- IV -->
+        {% set r5f = request.form.get('r5_financial','') %}
+        {% set r5r = request.form.get('r5_regulatory','') %}
+        {% set r5s = request.form.get('r5_stakeholder','') %}
+        {% set r5o = request.form.get('r5_operation','') %}
+        {% set r5h = request.form.get('r5_health','') %}
+        {% set r5p = request.form.get('r5_probability','') %}
+
+        <section class="sec sec--r">
+            <header>IV. Эрсдэлийн үнэлгээ</header>
+
+            <div class="body grid g3">
+                <div class="field">
+                    <label>Санхүүгийн нөлөөлөл*</label>
+                    <select name="r5_financial" onchange="r5Preview()" required>
+                        <option value="" {{ 'selected' if not r5f else '' }}>— Сонгоно уу —</option>
+                        <option value="1" {{ 'selected' if r5f=='1' else '' }}>Тэг буюу маш бага</option>
+                        <option value="2" {{ 'selected' if r5f=='2' else '' }}>250,000-аас доош алдагдал</option>
+                        <option value="3" {{ 'selected' if r5f=='3' else '' }}>250,001–5,000,000 алдагдал</option>
+                        <option value="4" {{ 'selected' if r5f=='4' else '' }}>5,000,001–50,000,000 алдагдал</option>
+                        <option value="5" {{ 'selected' if r5f=='5' else '' }}>50,000,001-с дээш алдагдал</option>
+                    </select>
+                </div>
+
+                <div class="field">
+                    <label>Хууль, дүрэм, журмын зохицуулалт*</label>
+                    <select name="r5_regulatory" onchange="r5Preview()" required>
+                        <option value="" {{ 'selected' if not r5r else '' }}>— Сонгоно уу —</option>
+                        <option value="1" {{ 'selected' if r5r=='1' else '' }}>Зохицуулалтын ямар нэгэн шаардлагыг зөрчөөгүй, бүрэн мөрддөг</option>
+                        <option value="2" {{ 'selected' if r5r=='2' else '' }}>Зохицуулалтын шаардлагыг бага зэрэг мөрдөөгүй</option>
+                        <option value="3" {{ 'selected' if r5r=='3' else '' }}>Дээд шатны байгууллагын шаардлагыг хэд хэдэн шаардлагыг мөрдөөгүй зөрчдөг</option>
+                        <option value="4" {{ 'selected' if r5r=='4' else '' }}>Дээд шатны байгууллагын шаардлагыг олон шаардлагыг мөрдөөгүй</option>
+                        <option value="5" {{ 'selected' if r5r=='5' else '' }}>Зохицуулагч байгууллагын шаардлагаар компани үйл ажиллагагаа зогссон.</option>
+                    </select>
+                </div>
+
+                <div class="field">
+                    <label>Харилцагч, үйлчлүүлэгчид нөлөөлөх нөлөөлөл*</label>
+                    <select name="r5_stakeholder" onchange="r5Preview()" required>
+                        <option value="" {{ 'selected' if not r5s else '' }}>— Сонгоно уу —</option>
+                        <option value="1" {{ 'selected' if r5s=='1' else '' }}>Тэг буюу сонирхогч талтай үл ялиг маргаан үүсэх</option>
+                        <option value="2" {{ 'selected' if r5s=='2' else '' }}>Ажилтан эсхүл газар нэгжүүдтэй харилцах харилцаанд сөрөг нөлөөлөл үүсэх</option>
+                        <option value="3" {{ 'selected' if r5s=='3' else '' }}>Байгууллага, бусад үйлчилгээ үзүүлэгч байгууллага гэх мэт сонирхогч талуудтай харилцах харилцаанд сөрөг нөлөөлөл үүсэх</option>
+                        <option value="4" {{ 'selected' if r5s=='4' else '' }}>Байгууллага, бүх үйлчилгээ үзүүлэгч, сонирхогч талуудтай харилцах харилцаанд сөрөг нөлөөлөл үүсэх</option>
+                        <option value="5" {{ 'selected' if r5s=='5' else '' }}>Сонирхогч талуудтай харилцах харилцаанд сөрөг нөлөөлөл үүсэх</option>
+                    </select>
+                </div>
+
+                <div class="field">
+                    <label>Төлөвлөгөө, гүйцэтгэлд нөлөөлөх нөлөөлөл*</label>
+                    <select name="r5_operation" onchange="r5Preview()" required>
+                        <option value="" {{ 'selected' if not r5o else '' }}>— Сонгоно уу —</option>
+                        <option value="1" {{ 'selected' if r5o=='1' else '' }}>Тэг буюу үйл ажиллагаа, төлөвлөгөөнд төдийлөн нөлөөлөхгүй</option>
+                        <option value="2" {{ 'selected' if r5o=='2' else '' }}>Ажилтны хариуцаж буй үйл ажиллагаа, төлөвлөгөөнд өөрчлөлт орох</option>
+                        <option value="3" {{ 'selected' if r5o=='3' else '' }}>Газар нэгжийн хэрэгжүүлж буй үйл ажиллагаа, төлөвлөгөөнд өөрчлөлт орох/түр зогсоож тодорхой хугацаагаар хойшлуулахад хүрэх</option>
+                        <option value="4" {{ 'selected' if r5o=='4' else '' }}>Газар нэгжийн хэрэгжүүлж буй үйл ажиллагаа, төлөвлөгөө тодорхойгүй хугацаагаар хойшлогдох/ихээхэн хэмжээний нэмэлт хөрөнгө, санхүүжилт шаардагдах</option>
+                        <option value="5" {{ 'selected' if r5o=='5' else '' }}>Бизнес төлөвлөгөө, стратегийн үйл ажиллагаа, төлөвлөгөө огт биелэх боломжгүй байдалд хүрэх, бүтэлгүйтэх</option>
+                    </select>
+                </div>
+
+                <div class="field">
+                    <label>Эрүүл мэнд, аюулгүй байдлын нөлөөлөл*</label>
+                    <select name="r5_health" onchange="r5Preview()" required>
+                        <option value="" {{ 'selected' if not r5h else '' }}>— Сонгоно уу —</option>
+                        <option value="1" {{ 'selected' if r5h=='1' else '' }}>Эрүүл мэндэд сөрөг нөлөөгүй</option>
+                        <option value="2" {{ 'selected' if r5h=='2' else '' }}>Эрүүл мэндэд бага түвшинд сөргөөр нөлөөлөх </option>
+                        <option value="3" {{ 'selected' if r5h=='3' else '' }}>Эрүүл мэндэд дунд зэрэг түвшинд сөргөөр нөлөөлөх </option>
+                        <option value="4" {{ 'selected' if r5h=='4' else '' }}>Эрүүл мэндэд өндөр түвшинд сөргөөр нөлөөлөх </option>
+                        <option value="5" {{ 'selected' if r5h=='5' else '' }}>Эрүүл мэндэд маш өндөр түвшинд сөргөөр нөлөөлөх </option>
+                    </select>
+                </div>
+
+                <div class="field">
+                    <label>Эрсдэл боломжийн магадлал*</label>
+                    <select name="r5_probability" onchange="r5Preview()" required>
+                        <option value="" {{ 'selected' if not r5p else '' }}>— Сонгоно уу —</option>
+                        <option value="1" {{ 'selected' if r5p=='1' else '' }}>Сүүлийн 3 сард тохиогоогүй</option>
+                        <option value="2" {{ 'selected' if r5p=='2' else '' }}>Сүүлийн 3 сар 2 хүртэл удаа тохиосон</option>
+                        <option value="3" {{ 'selected' if r5p=='3' else '' }}>Сүүлийн 3 сард 2-с олон удаа тохиосон</option>
+                        <option value="4" {{ 'selected' if r5p=='4' else '' }}>Сүүлийн 6 сард 2 хүртэл удаа тохиосон</option>
+                        <option value="5" {{ 'selected' if r5p=='5' else '' }}>Сүүлийн 1 жилд 1-с олон удаа тохиосон</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="tiles">
+                <div class="tile"><div>Үнэлгээний дүн</div><div id="r5_total" class="value">—</div></div>
+                <div id="tile_level" class="tile level"><div>Эрсдэлийн түвшин</div><div id="r5_level_badge" class="value">—</div></div>
+                <div class="tile"><div>Арга хэмжээний эрэмбэ</div><div id="r5_rank" class="value">—</div></div>
+            </div>
+
+            <input type="hidden" name="residual_score" id="residual_score" value="{{ request.form.get('residual_score','') }}">
+            <input type="hidden" name="residual_level" id="residual_level" value="{{ request.form.get('residual_level','') }}">
+            <input type="hidden" name="action_rank" id="action_rank" value="{{ request.form.get('action_rank','') }}">
+            <input type="hidden" name="risk_category" id="risk_category" value="{{ request.form.get('risk_category','') }}">
+        </section>
+
+        <div class="actions">
+            <button class="btn" type="submit">Хадгалах</button>
+        </div>
+    </form>
+</div>
+
+<script>
+    function toggleMoney() {
+        const sel = document.getElementById('has_actual_loss');
+        const wrap = document.getElementById('money_amount_wrap');
+        const amt = document.getElementById('money_amount');
+        if (!sel || !wrap) return;
+
+        if (sel.value === 'Тийм') {
+            wrap.classList.remove('hidden');
+        } else {
+            wrap.classList.add('hidden');
+            if (amt) amt.value = '';
+        }
+    }
+
+    function formatNumberWithCommas(value) {
+        const raw = (value || '').replace(/[^\d]/g, '');
+        if (!raw) return '';
+        return raw.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+    }
+
+    let extraCount = 0;
+    const list = document.getElementById('evidence_more_list');
+    const addBtn = document.getElementById('btnAddEvidence');
+    const remBtn = document.getElementById('btnRemoveEvidence');
+
+    function rebuildEvidence() {
+        if (!list) return;
+        list.innerHTML = '';
+        for (let i = 1; i <= extraCount; i++) {
+            const idx = i + 1; // 2..5
+            const div = document.createElement('div');
+            div.className = 'field';
+            div.innerHTML = `
+                <label>Нотлох баримт (файл ${idx})</label>
+                <input type="file" name="evidence_file_${idx}" accept=".pdf,.doc,.docx,.xls,.xlsx,.png,.jpg,.jpeg">
+            `;
+            list.appendChild(div);
+        }
+
+        if (remBtn) {
+            if (extraCount > 0) remBtn.classList.remove('hidden');
+            else remBtn.classList.add('hidden');
+        }
+    }
+
+    function vOf(name) {
+        return parseInt((document.querySelector(`[name="${name}"]`)?.value || '0'), 10) || 0;
+    }
+
+    function setCtrlVisual(pct) {
+        const val = document.getElementById('ctrlValue');
+        const pill = document.getElementById('ctrlPill');
+        const bar = document.getElementById('ctrlBar');
+
+        if (!val || !pill || !bar) return;
+
+        bar.classList.remove('ctrl-ok', 'ctrl-mid', 'ctrl-bad');
+
+        if (pct === null) {
+            val.textContent = '—';
+            pill.textContent = 'Тодорхойгүй';
+            bar.style.width = '0%';
+            return;
+        }
+
+        val.textContent = pct + '%';
+        bar.style.width = Math.max(0, Math.min(100, pct)) + '%';
+
+        if (pct >= 61) {
+            bar.classList.add('ctrl-ok');
+            pill.textContent = 'Өндөр (61–100)';
+        } else if (pct >= 49) {
+            bar.classList.add('ctrl-mid');
+            pill.textContent = 'Дунд (49–60)';
+        } else {
+            bar.classList.add('ctrl-bad');
+            pill.textContent = 'Бага (0–48)';
+        }
+    }
+
+    function calcControlPct() {
+        const a = vOf('ctl_design'), b = vOf('ctl_operates'), c = vOf('ctl_awareness');
+        const sum = a + b + c;
+        const hid = document.getElementById('control_pct');
+        if (!hid) return;
+
+        if (!sum) {
+            hid.value = '';
+            setCtrlVisual(null);
+            return;
+        }
+
+        const pct = Math.round(sum / 14 * 100);
+        hid.value = pct + '%';
+        setCtrlVisual(pct);
+    }
+
+    function r5Preview() {
+        const val = n => parseInt((document.querySelector(`[name="${n}"]`)?.value || '0'), 10) || 0;
+        const scores = ['r5_financial', 'r5_regulatory', 'r5_stakeholder', 'r5_operation', 'r5_health'].map(val);
+        const p = val('r5_probability');
+
+        const totalBox = document.getElementById('r5_total');
+        const levelBox = document.getElementById('r5_level_badge');
+        const rankBox = document.getElementById('r5_rank');
+        const tile = document.getElementById('tile_level');
+
+        if (tile) tile.classList.remove('low', 'med', 'high');
+
+        const hScore = document.getElementById('residual_score');
+        const hLevel = document.getElementById('residual_level');
+        const hRank = document.getElementById('action_rank');
+        const hCat = document.getElementById('risk_category');
+
+        if (scores.some(v => !v) || !p) {
+            if (totalBox) totalBox.textContent = '—';
+            if (levelBox) levelBox.textContent = '—';
+            if (rankBox) rankBox.textContent = '—';
+            if (hScore) hScore.value = '';
+            if (hLevel) hLevel.value = '';
+            if (hRank) hRank.value = '';
+            if (hCat) hCat.value = '';
+            return;
+        }
+
+        const total = scores.reduce((a, b) => a + b, 0) * p;
+
+        let level = 'Бага', chip = 'low', rank = 'Эрэмбэ-3';
+        if (total >= 75) { level = 'Өндөр'; chip = 'high'; rank = 'Эрэмбэ-1'; }
+        else if (total >= 16) { level = 'Дунд'; chip = 'med'; rank = 'Эрэмбэ-2'; }
+
+        if (totalBox) totalBox.textContent = total + ' оноо';
+        if (levelBox) levelBox.textContent = level;
+        if (rankBox) rankBox.textContent = rank;
+        if (tile) tile.classList.add(chip);
+
+        if (hScore) hScore.value = total;
+        if (hLevel) hLevel.value = level;
+        if (hRank) hRank.value = rank;
+        if (hCat) hCat.value = level;
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        toggleMoney();
+        document.getElementById('has_actual_loss')?.addEventListener('change', toggleMoney);
+
+        document.getElementById('money_amount')?.addEventListener('input', (e) => {
+            e.target.value = formatNumberWithCommas(e.target.value);
+        });
+
+        rebuildEvidence();
+
+        addBtn?.addEventListener('click', () => {
+            if (extraCount >= 4) return;
+            extraCount += 1;
+            rebuildEvidence();
+        });
+
+        remBtn?.addEventListener('click', () => {
+            if (extraCount <= 0) return;
+            extraCount -= 1;
+            rebuildEvidence();
+        });
+
+        calcControlPct();
+        r5Preview();
+
+        document.querySelectorAll('[name="ctl_design"],[name="ctl_operates"],[name="ctl_awareness"]')
+            .forEach(el => el.addEventListener('change', calcControlPct));
+
+        document.querySelectorAll('[name="r5_financial"],[name="r5_regulatory"],[name="r5_stakeholder"],[name="r5_operation"],[name="r5_health"],[name="r5_probability"]')
+            .forEach(el => el.addEventListener('change', r5Preview));
+
+        document.getElementById('issueForm')?.addEventListener('submit', () => {
+            toggleMoney();
+            calcControlPct();
+            r5Preview();
+        });
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,431 @@
+<!doctype html>
+<html lang="mn">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>{% block title %}Дотоод аудитын систем{% endblock %}</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --em-green: #0b5f57;
+            --em-green-2: #0a534c;
+            --em-soft: #e7f5f2;
+            --ink: #0f172a;
+            --muted: #64748b;
+            --border: #e5e7eb;
+            --shadow: 0 12px 30px rgba(0,0,0,.12);
+        }
+
+        * {
+            font-family: 'Montserrat', system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif !important;
+            box-sizing: border-box;
+            font-weight: 400 !important;
+        }
+
+        html, body {
+            font-weight: 400 !important;
+        }
+
+        body {
+            margin: 0;
+            background: #f6f8fb;
+            color: var(--ink);
+            min-width: 320px;
+        }
+
+        .site-header {
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            background: linear-gradient(90deg, var(--em-green), var(--em-green-2));
+            color: #fff;
+            box-shadow: 0 10px 26px rgba(0,0,0,.18);
+        }
+
+        .container {
+            max-width: 1800px;
+            margin: 0 auto;
+            padding: 14px 18px;
+            width: 100%;
+        }
+
+        .header-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 14px;
+            flex-wrap: wrap;
+        }
+
+        .brand-wrap {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            min-width: 280px;
+        }
+
+        .brand-logo {
+            height: 64px;
+            width: auto;
+            object-fit: contain;
+            display: block;
+            flex: 0 0 auto;
+        }
+
+        .brand-text {
+            display: flex;
+            flex-direction: column;
+            min-width: 0;
+        }
+
+        .brand-title {
+            font-size: 20px;
+            font-weight: 400 !important;
+            letter-spacing: .3px;
+            line-height: 1.15;
+            white-space: nowrap;
+            color: #fff;
+        }
+
+        .brand-sub {
+            font-size: 13px;
+            opacity: .92;
+            font-weight: 400 !important;
+            line-height: 1.25;
+            white-space: nowrap;
+            color: #fff;
+        }
+
+        .topnav {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+            justify-content: flex-end;
+        }
+
+        .home-pill {
+            background: rgba(255,255,255,.14);
+            border: 1px solid rgba(255,255,255,.28);
+            color: #fff;
+            padding: 8px 14px;
+            border-radius: 999px;
+            text-decoration: none;
+            font-size: 13px;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: .15s;
+            font-weight: 400 !important;
+            white-space: nowrap;
+        }
+
+            .home-pill:hover {
+                background: rgba(255,255,255,.2);
+            }
+
+        .dd {
+            position: relative;
+            display: inline-block;
+        }
+
+        .dd-btn {
+            background: var(--em-soft);
+            border: 1px solid #bfe9de;
+            padding: 8px 14px;
+            border-radius: 999px;
+            cursor: pointer;
+            color: #064e45;
+            font-size: 13px;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-weight: 400 !important;
+            white-space: nowrap;
+        }
+
+        .dd-menu {
+            display: none;
+            position: absolute;
+            right: 0;
+            top: 110%;
+            min-width: 220px;
+            background: #fff;
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            box-shadow: var(--shadow);
+            overflow: hidden;
+            z-index: 2000;
+            padding: 6px 0;
+        }
+
+        .dd.open .dd-menu {
+            display: block;
+        }
+
+        .dd-menu a {
+            display: block;
+            padding: 10px 14px;
+            text-decoration: none;
+            color: var(--ink);
+            font-size: 13px;
+            font-weight: 400 !important;
+            white-space: nowrap;
+        }
+
+            .dd-menu a:hover {
+                background: #f1f5f9;
+            }
+
+        .nav-user {
+            color: rgba(255,255,255,.95);
+            font-size: 13px;
+            font-weight: 400 !important;
+            white-space: nowrap;
+        }
+
+        .nav-logout {
+            background: #ffe4e6;
+            border: 1px solid #fecdd3;
+            padding: 8px 14px;
+            border-radius: 999px;
+            text-decoration: none;
+            color: #9f1239;
+            font-size: 13px;
+            font-weight: 400 !important;
+            white-space: nowrap;
+        }
+
+        main.container {
+            padding-top: 12px;
+            padding-bottom: 18px;
+            min-height: calc(100vh - 120px);
+        }
+
+        .auth-main {
+            min-height: 100vh !important;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding-top: 0 !important;
+            padding-bottom: 0 !important;
+        }
+
+        main.container.main--wide {
+            max-width: 100% !important;
+            width: 100% !important;
+            padding-left: 12px !important;
+            padding-right: 12px !important;
+            margin-left: 0 !important;
+            margin-right: 0 !important;
+        }
+
+        .flash {
+            border-radius: 14px;
+            padding: 10px 14px;
+            margin: 10px 0;
+            border: 1px solid var(--border);
+            background: #fff;
+            font-size: 13px;
+            font-weight: 400 !important;
+        }
+
+            .flash.success {
+                border-color: #bbf7d0;
+                background: #ecfdf5;
+            }
+
+            .flash.error,
+            .flash.danger {
+                border-color: #fecdd3;
+                background: #fff1f2;
+            }
+
+            .flash.info {
+                border-color: #bae6fd;
+                background: #eff6ff;
+            }
+
+        .site-footer {
+            background: var(--em-green);
+            color: #fff;
+        }
+
+        .footer-row {
+            text-align: center;
+            font-size: 13px;
+            padding: 14px 0;
+            font-weight: 400 !important;
+        }
+
+        @media (max-width: 1100px) {
+            .header-row {
+                align-items: flex-start;
+            }
+
+            .brand-wrap {
+                width: 100%;
+            }
+
+            .topnav {
+                width: 100%;
+                justify-content: flex-start;
+            }
+
+            .brand-title,
+            .brand-sub {
+                white-space: normal;
+            }
+        }
+
+        @media (max-width: 640px) {
+            .container {
+                padding: 12px 14px;
+            }
+
+            main.container.main--wide {
+                padding-left: 10px !important;
+                padding-right: 10px !important;
+            }
+
+            .brand-logo {
+                height: 48px;
+            }
+
+            .brand-title {
+                font-size: 16px;
+            }
+
+            .brand-sub {
+                font-size: 11px;
+            }
+
+            .dd-menu {
+                left: 0;
+                right: auto;
+                min-width: 210px;
+            }
+        }
+    </style>
+
+    {% block head %}{% endblock %}
+</head>
+
+<body>
+
+    {% set auth_page = request.endpoint in ['login', 'register'] %}
+
+    {% if not auth_page %}
+    <header class="site-header">
+        <div class="container header-row">
+
+            <div class="brand-wrap">
+                <img class="brand-logo"
+                     src="{{ url_for('static', filename='images/erdenesmongol_logo.png') }}"
+                     alt="Эрдэнэс Монгол лого">
+
+                <div class="brand-text">
+                    <div class="brand-title">ДОТООД АУДИТЫН ГАЗАР</div>
+                    <div class="brand-sub">Асуудлын бүртгэл, эргэн хяналтын систем</div>
+                </div>
+            </div>
+
+            {% if current_user.is_authenticated %}
+            <nav class="topnav">
+
+                <a class="home-pill" href="{{ url_for('index') }}">Нүүр</a>
+
+                <div class="dd" data-dd>
+                    <button class="dd-btn" type="button" data-dd-btn>Асуудал ▾</button>
+                    <div class="dd-menu" data-dd-menu>
+                        <a href="{{ url_for('submit') }}">Шинээр бүртгэх</a>
+                        <a href="{{ url_for('issues') }}">Нийт асуудал</a>
+                        <a href="{{ url_for('followups') }}">Эргэн хяналт</a>
+                    </div>
+                </div>
+
+                <div class="dd" data-dd>
+                    <button class="dd-btn" type="button" data-dd-btn>Удирдамж ▾</button>
+                    <div class="dd-menu" data-dd-menu>
+                        <a href="{{ url_for('guideline') }}">Удирдамж үүсгэх</a>
+                        <a href="{{ url_for('guideline_list') }}">Нийт удирдамж</a>
+                    </div>
+                </div>
+
+                <div class="dd" data-dd>
+                    <button class="dd-btn" type="button" data-dd-btn>Хэрэглэгч ▾</button>
+                    <div class="dd-menu" data-dd-menu>
+                        <a href="{{ url_for('change_password') }}">Нууц үг солих</a>
+                    </div>
+                </div>
+
+                {% if getattr(current_user,'is_admin',False) %}
+                <div class="dd" data-dd>
+                    <button class="dd-btn" type="button" data-dd-btn>Админ ▾</button>
+                    <div class="dd-menu" data-dd-menu>
+                        <a href="{{ url_for('users_list') }}">Нийт бүртгэл</a>
+                        <a href="{{ url_for('logs') }}">Лог бүртгэл</a>
+                        <a href="{{ url_for('permissions') }}">Эрхийн зохицуулалт</a>
+                    </div>
+                </div>
+                {% endif %}
+
+                <span class="nav-user">{{ current_user.username }}</span>
+                <a class="nav-logout" href="{{ url_for('logout') }}">Гарах</a>
+
+            </nav>
+            {% endif %}
+
+        </div>
+    </header>
+    {% endif %}
+
+    <main class="container {% if auth_page %}auth-main{% endif %} {% block main_class %}{% endblock %}">
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+        {% for category, message in messages %}
+        <div class="flash {{ category }}">{{ message }}</div>
+        {% endfor %}
+        {% endwith %}
+
+        {% block content %}{% endblock %}
+
+    </main>
+
+    {% if not auth_page %}
+    <footer class="site-footer">
+        <div class="container footer-row">© 2026 Дотоод аудитын систем</div>
+    </footer>
+    {% endif %}
+
+    <script>
+        (function () {
+            const dds = [...document.querySelectorAll('[data-dd]')];
+
+            function closeAll() {
+                dds.forEach(dd => dd.classList.remove('open'));
+            }
+
+            dds.forEach(dd => {
+                const btn = dd.querySelector('[data-dd-btn]');
+                if (!btn) return;
+
+                btn.addEventListener('click', e => {
+                    e.stopPropagation();
+                    const open = dd.classList.contains('open');
+                    closeAll();
+                    if (!open) dd.classList.add('open');
+                });
+            });
+
+            document.addEventListener('click', closeAll);
+        })();
+    </script>
+
+    {% block scripts %}{% endblock %}
+</body>
+</html>

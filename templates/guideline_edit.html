@@ -1,0 +1,220 @@
+{% extends "base.html" %}
+{% block title %}Удирдамж засах{% endblock %}
+{% block main_class %}main--wide{% endblock %}
+{% block content %}
+
+<style>
+    .wrap {
+        max-width: 1100px;
+        margin: 0 auto;
+    }
+
+    .h1 {
+        font-size: 22px;
+        margin: 6px 0 14px;
+        color: #0f172a;
+    }
+
+    .card {
+        background: #fff;
+        border: 1px solid #e5e7eb;
+        border-radius: 16px;
+        box-shadow: 0 12px 28px rgba(2,6,23,.06);
+        padding: 14px;
+    }
+
+    .grid {
+        display: grid;
+        gap: 12px;
+    }
+
+    .g2 {
+        grid-template-columns: repeat(2,minmax(0,1fr));
+    }
+
+    @media(max-width:900px) {
+        .g2 {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    label {
+        display: block;
+        font-size: 13px;
+        color: #0f172a;
+        margin: 0 0 6px;
+    }
+
+    input, select, textarea {
+        width: 100%;
+        height: 40px;
+        border: 1px solid #d7dee7;
+        border-radius: 12px;
+        padding: 8px 10px;
+        font-size: 13px;
+        outline: none;
+    }
+
+    textarea {
+        height: auto;
+        min-height: 90px;
+        resize: vertical;
+    }
+
+    .checks {
+        border: 1px dashed #cbd5e1;
+        border-radius: 14px;
+        padding: 10px;
+        background: #fbfdff;
+        max-height: 220px;
+        overflow: auto;
+    }
+
+    .check-row {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+        padding: 6px 0;
+        border-bottom: 1px solid #f1f5f9;
+    }
+
+        .check-row:last-child {
+            border-bottom: 0;
+        }
+
+        .check-row input {
+            width: auto;
+            height: auto;
+        }
+
+    .actions {
+        display: flex;
+        gap: 10px;
+        justify-content: flex-end;
+        flex-wrap: wrap;
+        margin-top: 10px;
+    }
+
+    .btn {
+        height: 42px;
+        padding: 0 16px;
+        border-radius: 999px;
+        border: 1px solid #0b5f57;
+        background: #0b5f57;
+        color: #fff;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+    }
+
+    .btn-ghost {
+        height: 42px;
+        padding: 0 16px;
+        border-radius: 999px;
+        border: 1px solid #d7dee7;
+        background: #fff;
+        color: #0f172a;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+    }
+</style>
+
+<div class="wrap">
+    <div class="h1">Удирдамж засах #{{ g.id }}</div>
+
+    <div class="card">
+        <form method="POST">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+            <div class="grid g2">
+                <div>
+                    <label>Компанийн нэр *</label>
+                    <select name="company_name" required>
+                        <option value="">— Сонгоно уу —</option>
+                        {% for c in COMPANIES %}
+                        <option value="{{ c }}" {{ 'selected' if g.company_name==c else '' }}>{{ c }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div>
+                    <label>Аудитын төрөл *</label>
+                    <select name="audit_type" required>
+                        <option value="">— Сонгоно уу —</option>
+                        <option value="Төлөвлөгөөт аудит" {{ 'selected' if g.audit_type=='Төлөвлөгөөт аудит' else '' }}>Төлөвлөгөөт аудит</option>
+                        <option value="Төлөвлөгөөт бус аудит" {{ 'selected' if g.audit_type=='Төлөвлөгөөт бус аудит' else '' }}>Төлөвлөгөөт бус аудит</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label>Дэд төрөл *</label>
+                    <select name="audit_subtype" required>
+                        <option value="">— Сонгоно уу —</option>
+                        <option value="Сэдэвчилсэн аудит" {{ 'selected' if g.audit_subtype=='Сэдэвчилсэн аудит' else '' }}>Сэдэвчилсэн аудит</option>
+                        <option value="Эргэн хяналтын аудит" {{ 'selected' if g.audit_subtype=='Эргэн хяналтын аудит' else '' }}>Эргэн хяналтын аудит</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label>Аудитын багын ахлагч *</label>
+                    <select name="team_leader" required>
+                        <option value="">— Сонгоно уу —</option>
+                        {% for a in AUDITORS %}
+                        <option value="{{ a }}" {{ 'selected' if g.team_leader==a else '' }}>{{ a }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+
+            <div style="margin-top:10px;">
+                <label>Аудитын багын гишүүд</label>
+                <div class="checks">
+                    {% for a in AUDITORS %}
+                    <div class="check-row">
+                        <input type="checkbox" name="team_members" value="{{ a }}" {{ 'checked' if a in selected_members else '' }}>
+                        <div>{{ a }}</div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <div class="grid g2" style="margin-top:12px;">
+                <div>
+                    <label>Аудитын хамрах хугацаа – эхлэх *</label>
+                    <input type="date" name="scope_start" value="{{ g.scope_start.strftime('%Y-%m-%d') if g.scope_start else '' }}" required>
+                </div>
+                <div>
+                    <label>Аудитын хамрах хугацаа – дуусах *</label>
+                    <input type="date" name="scope_end" value="{{ g.scope_end.strftime('%Y-%m-%d') if g.scope_end else '' }}" required>
+                </div>
+                <div>
+                    <label>Аудит хэрэгжүүлэх хугацаа – эхлэх *</label>
+                    <input type="date" name="exec_start" value="{{ g.exec_start.strftime('%Y-%m-%d') if g.exec_start else '' }}" required>
+                </div>
+                <div>
+                    <label>Аудит хэрэгжүүлэх хугацаа – дуусах *</label>
+                    <input type="date" name="exec_end" value="{{ g.exec_end.strftime('%Y-%m-%d') if g.exec_end else '' }}" required>
+                </div>
+            </div>
+
+            <div class="grid g2" style="margin-top:12px;">
+                <div>
+                    <label>Аудит хэрэгжүүлэх хугацааг сунгасан бол дуусах сүүлийн өдөр</label>
+                    <input type="date" name="extended_end" value="{{ g.extended_end.strftime('%Y-%m-%d') if g.extended_end else '' }}">
+                </div>
+                <div>
+                    <label>Аудитын хэрэгжүүлэх хугацааг сунгасан тайлбар</label>
+                    <textarea name="extension_note">{{ g.extension_note or '' }}</textarea>
+                </div>
+            </div>
+
+            <div class="actions">
+                <a class="btn-ghost" href="{{ url_for('guideline_detail', gid=g.id) }}">Буцах</a>
+                <button class="btn" type="submit">Хадгалах</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+{% endblock %}

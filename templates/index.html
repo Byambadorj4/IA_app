@@ -1,0 +1,2426 @@
+{% extends "base.html" %}
+{% block title %}Нүүр / Dashboard{% endblock %}
+{% block main_class %}main--wide{% endblock %}
+
+{% block head %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500&display=swap" rel="stylesheet">
+
+<style>
+    :root {
+        --brand: #0b5f57;
+        --brand2: #0e7a6e;
+        --stroke: rgba(15,23,42,.10);
+        --glow: 0 16px 36px rgba(2,6,23,.10);
+        --round: 18px;
+        --ink: #111111;
+        --muted: #64748b;
+        --tick: #111111;
+        --grid: rgba(15,23,42,.10);
+        --c-red: #ef4444;
+        --c-amber: #f59e0b;
+        --c-green: #22c55e;
+        --c-blue: #0284c7;
+        --kpi-a: rgba(11,95,87,.28);
+        --kpi-b: rgba(14,165,233,.24);
+        --kpi-c: rgba(245,158,11,.24);
+        --kpi-d: rgba(239,68,68,.18);
+    }
+
+    .dash-wrap,
+    .dash-wrap * {
+        font-family: 'Montserrat', Arial, sans-serif !important;
+        font-weight: 400 !important;
+    }
+
+    .dash-wrap {
+        width: 100%;
+        max-width: 1980px;
+        margin: 0 auto;
+        padding: 0 6px 18px;
+        box-sizing: border-box;
+    }
+
+    .dash-hero {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 12px;
+        margin: 8px 0 14px;
+        flex-wrap: wrap;
+    }
+
+    .hero-left {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        min-width: 280px;
+    }
+
+    .title-row {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        flex-wrap: wrap;
+    }
+
+    .dash-hero h1 {
+        margin: 0;
+        font-size: 18px;
+        font-weight: 500 !important;
+        display: flex;
+        gap: 10px;
+        align-items: center;
+    }
+
+    .dash-hero .sub {
+        font-size: 12px;
+        margin-top: 0;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        flex-wrap: wrap;
+        color: var(--muted);
+        font-weight: 400 !important;
+    }
+
+    .clock-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        padding: 8px 12px;
+        border-radius: 12px;
+        border: 1px solid rgba(11,95,87,.18);
+        background: rgba(11,95,87,.08);
+        color: var(--brand);
+    }
+
+    .clock-time {
+        font-size: 13px;
+        font-weight: 500 !important;
+        letter-spacing: .2px;
+        color: var(--brand);
+        white-space: nowrap;
+    }
+
+    .clock-city {
+        font-size: 12px;
+        color: #64748b;
+        white-space: nowrap;
+        font-weight: 400 !important;
+    }
+
+    .glass {
+        background: radial-gradient(120% 120% at 12% 12%, rgba(11,95,87,.11), transparent 55%), radial-gradient(120% 120% at 95% 0%, rgba(14,122,110,.08), transparent 45%), linear-gradient(180deg, rgba(255,255,255,.985), rgba(255,255,255,.93));
+        border: 1px solid var(--stroke);
+        border-radius: var(--round);
+        box-shadow: var(--glow);
+        backdrop-filter: blur(10px);
+    }
+
+    .filters {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+        flex-wrap: wrap;
+        justify-content: flex-end;
+    }
+
+        .filters select,
+        .filters input,
+        .filters button {
+            border-radius: 12px;
+            padding: 9px 10px;
+            outline: none;
+            font-size: 12px;
+            color: var(--ink);
+            font-weight: 400 !important;
+        }
+
+        .filters select,
+        .filters input {
+            border: 1px solid rgba(15,23,42,.18);
+            background: rgba(255,255,255,.96);
+        }
+
+        .filters select {
+            min-width: 220px;
+        }
+
+        .filters input {
+            width: 150px;
+        }
+
+        .filters button {
+            cursor: pointer;
+            padding: 9px 14px;
+            background: linear-gradient(135deg, rgba(11,95,87,.96), rgba(14,122,110,.92));
+            border: 1px solid rgba(11,95,87,.30);
+            color: #fff;
+            font-weight: 500 !important;
+        }
+
+        .filters a {
+            font-size: 12px;
+            text-decoration: none;
+            opacity: .95;
+            font-weight: 400 !important;
+        }
+
+            .filters a:hover {
+                opacity: 1;
+                text-decoration: underline;
+            }
+
+    .ticker-wrap {
+        border-radius: var(--round);
+        border: 1px solid rgba(15,23,42,.10);
+        background: linear-gradient(180deg, rgba(255,255,255,.98), rgba(255,255,255,.92));
+        box-shadow: var(--glow);
+        overflow: hidden;
+        margin: 8px 0 12px;
+        padding: 12px;
+    }
+
+    .ticker-head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+        margin-bottom: 10px;
+        flex-wrap: wrap;
+    }
+
+    .ticker-title {
+        font-size: 13px;
+        font-weight: 500 !important;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        white-space: nowrap;
+    }
+
+    .ticker-source {
+        font-size: 11.5px;
+        color: #64748b;
+        white-space: nowrap;
+        opacity: .95;
+        font-weight: 400 !important;
+    }
+
+        .ticker-source a {
+            color: var(--brand);
+            text-decoration: underline;
+            text-underline-offset: 2px;
+            font-weight: 400 !important;
+        }
+
+    .commodity-grid {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 12px;
+    }
+
+    @media (max-width: 1280px) {
+        .commodity-grid {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+    }
+
+    @media (max-width: 680px) {
+        .commodity-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    .commodity-card {
+        border-radius: 16px;
+        overflow: hidden;
+        border: 1px solid rgba(15,23,42,.10);
+        background: #fff;
+        box-shadow: 0 10px 24px rgba(2,6,23,.05);
+    }
+
+    .commodity-card-head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 8px;
+        padding: 10px 12px;
+        border-bottom: 1px solid rgba(15,23,42,.08);
+        background: linear-gradient(180deg, rgba(11,95,87,.05), rgba(255,255,255,.92));
+    }
+
+    .commodity-name {
+        font-size: 12px;
+        font-weight: 500 !important;
+        color: var(--ink);
+    }
+
+    .commodity-market {
+        font-size: 11px;
+        color: #64748b;
+        white-space: nowrap;
+        font-weight: 400 !important;
+    }
+
+    .commodity-body {
+        padding: 0;
+        background: #fff;
+    }
+
+    .tradingview-widget-container,
+    .tradingview-widget-container__widget {
+        width: 100% !important;
+        height: 220px !important;
+    }
+
+    .active-guideline-wrap {
+        margin: 0 0 14px;
+    }
+
+    .active-title {
+        font-size: 13px;
+        font-weight: 500 !important;
+        margin: 0 0 10px;
+        display: flex;
+        gap: 8px;
+        align-items: center;
+    }
+
+    .active-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+        gap: 12px;
+    }
+
+    .active-card {
+        padding: 12px 14px;
+        border-radius: var(--round);
+        border: 1px solid rgba(15,23,42,.10);
+        background: linear-gradient(180deg, rgba(255,255,255,.98), rgba(255,255,255,.92));
+        box-shadow: var(--glow);
+    }
+
+    .g-company {
+        font-weight: 500 !important;
+        color: var(--brand);
+        margin-bottom: 6px;
+        font-size: 13px;
+    }
+
+    .g-meta {
+        font-size: 12px;
+        line-height: 1.55;
+        color: var(--ink);
+        font-weight: 400 !important;
+    }
+
+    .g-actions {
+        margin-top: 8px;
+        display: flex;
+        justify-content: flex-end;
+    }
+
+        .g-actions a {
+            font-size: 12px;
+            text-decoration: none;
+            padding: 8px 12px;
+            border-radius: 999px;
+            border: 1px solid rgba(11,95,87,.28);
+            background: rgba(11,95,87,.10);
+            color: var(--ink);
+            font-weight: 500 !important;
+        }
+
+            .g-actions a:hover {
+                background: rgba(11,95,87,.14);
+            }
+
+    .kpi-grid {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 14px;
+        margin-bottom: 16px;
+    }
+
+    @media (max-width: 1300px) {
+        .kpi-grid {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+    }
+
+    @media (max-width: 700px) {
+        .kpi-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    .kpi {
+        padding: 12px 14px;
+        position: relative;
+        overflow: hidden;
+        display: flex;
+        gap: 10px;
+        align-items: center;
+        justify-content: space-between;
+        min-height: 84px;
+    }
+
+        .kpi:before {
+            content: "";
+            position: absolute;
+            inset: -40px -40px auto auto;
+            width: 150px;
+            height: 150px;
+            background: radial-gradient(circle at 30% 30%, rgba(255,255,255,.30), transparent 60%);
+            transform: rotate(15deg);
+        }
+
+        .kpi.k1 {
+            background: radial-gradient(140% 120% at 10% 20%, var(--kpi-a), transparent 55%), radial-gradient(120% 120% at 90% 0%, rgba(255,255,255,.72), transparent 55%), linear-gradient(180deg, rgba(248,255,253,.99), rgba(242,251,248,.96));
+        }
+
+        .kpi.k2 {
+            background: radial-gradient(140% 120% at 10% 20%, var(--kpi-b), transparent 55%), radial-gradient(120% 120% at 90% 0%, rgba(255,255,255,.72), transparent 55%), linear-gradient(180deg, rgba(248,253,255,.99), rgba(239,249,255,.96));
+        }
+
+        .kpi.k3 {
+            background: radial-gradient(140% 120% at 10% 20%, var(--kpi-c), transparent 55%), radial-gradient(120% 120% at 90% 0%, rgba(255,255,255,.72), transparent 55%), linear-gradient(180deg, rgba(255,252,246,.99), rgba(255,248,236,.96));
+        }
+
+        .kpi.k4 {
+            background: radial-gradient(140% 120% at 10% 20%, var(--kpi-d), transparent 55%), radial-gradient(120% 120% at 90% 0%, rgba(255,255,255,.72), transparent 55%), linear-gradient(180deg, rgba(255,249,249,.99), rgba(255,241,241,.96));
+        }
+
+    .kpi-left {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        min-width: 0;
+        z-index: 1;
+        padding-right: 54px;
+    }
+
+    .k-label {
+        font-size: 12px;
+        font-weight: 500 !important;
+        color: #111111;
+    }
+
+    .k-val {
+        font-weight: 500 !important;
+        font-size: 28px;
+        line-height: 1.1;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        max-width: 100%;
+        position: absolute;
+        right: 16px;
+        top: 50%;
+        transform: translateY(-34%);
+        z-index: 1;
+        color: #111111;
+    }
+
+    .grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 16px;
+        align-items: stretch;
+    }
+
+    @media (max-width: 1200px) {
+        .grid {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    .card {
+        padding: 14px 14px 12px;
+        display: flex;
+        flex-direction: column;
+        min-height: 500px;
+    }
+
+        .card h3 {
+            margin: 0 0 14px;
+            font-size: 14px;
+            font-weight: 500 !important;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            line-height: 1.45;
+            flex-wrap: wrap;
+        }
+
+    .hint {
+        font-size: 11px;
+        color: var(--muted);
+        margin-top: -6px;
+        margin-bottom: 8px;
+        font-weight: 400 !important;
+    }
+
+    .chart-box {
+        height: 390px;
+        position: relative;
+    }
+
+        .chart-box.donut {
+            height: 420px;
+        }
+
+    .row-2col {
+        grid-column: 1 / -1;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 16px;
+    }
+
+    @media (max-width: 1100px) {
+        .row-2col {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    .money-map {
+        display: grid;
+        grid-template-columns: 1.2fr .8fr;
+        gap: 12px;
+        height: 100%;
+        min-height: 0;
+    }
+
+    @media (max-width: 1100px) {
+        .money-map {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    .money-card.glass {
+        background: radial-gradient(120% 120% at 10% 10%, rgba(16,185,129,.18), transparent 55%), radial-gradient(120% 120% at 90% 0%, rgba(45,212,191,.15), transparent 55%), radial-gradient(120% 120% at 35% 95%, rgba(34,197,94,.11), transparent 60%), linear-gradient(180deg, rgba(255,255,255,.99), rgba(255,255,255,.93));
+        border: 1px solid rgba(15,23,42,.10);
+    }
+
+    .money-3grid {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 24px;
+        margin: 8px 0 10px;
+    }
+
+    .money-tile {
+        border-radius: 16px;
+        padding: 14px 16px;
+        background: rgba(255,255,255,.86);
+        border: 1px solid rgba(15,23,42,.10);
+        box-shadow: 0 10px 24px rgba(2,6,23,.06);
+        min-width: 0;
+    }
+
+        .money-tile .t1 {
+            font-size: 12px;
+            font-weight: 500 !important;
+            margin-bottom: 6px;
+            opacity: .92;
+        }
+
+        .money-tile .t2 {
+            font-size: clamp(22px, 2.6vw, 34px);
+            font-weight: 500 !important;
+            line-height: 1.12;
+            overflow-wrap: anywhere;
+            word-break: break-word;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .money-tile.total .t2 {
+            color: var(--c-red);
+        }
+
+        .money-tile.reduced .t2 {
+            color: var(--c-green);
+        }
+
+        .money-tile.remain .t2 {
+            color: var(--c-amber);
+        }
+
+    .m-ico {
+        font-size: 18px;
+        line-height: 1;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 18px;
+        min-width: 18px;
+        font-weight: 500 !important;
+    }
+
+        .m-ico.up {
+            color: var(--c-red);
+        }
+
+        .m-ico.down {
+            color: var(--c-green);
+        }
+
+        .m-ico.dot {
+            color: var(--c-blue);
+        }
+
+    .map-box {
+        height: 330px;
+        border-radius: 16px;
+        overflow: hidden;
+        border: 1px solid rgba(15,23,42,.12);
+        background: #fff;
+    }
+
+    .panel {
+        border-radius: 16px;
+        background: rgba(255,255,255,.76);
+        border: 1px solid rgba(15,23,42,.10);
+        padding: 8px;
+        min-height: 0;
+    }
+
+        .panel h4 {
+            margin: 0 0 8px;
+            font-size: 12px;
+            font-weight: 500 !important;
+        }
+
+    .split {
+        display: grid;
+        grid-template-columns: 1.35fr .65fr;
+        gap: 14px;
+        min-height: 0;
+        flex: 1;
+        align-items: stretch;
+    }
+
+    @media (max-width: 1200px) {
+        .split {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    .panel .note {
+        margin-top: 10px;
+        font-size: 11px;
+        line-height: 1.45;
+        color: var(--muted);
+        font-weight: 400 !important;
+    }
+
+    .triple-grid {
+        grid-column: 1 / -1;
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 16px;
+        align-items: stretch;
+    }
+
+    @media (max-width: 1600px) {
+        .triple-grid {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+    }
+
+    @media (max-width: 1020px) {
+        .triple-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    .viz-card {
+        padding: 0;
+        overflow: hidden;
+        height: 560px;
+        min-height: 560px;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .viz-head {
+        padding: 14px 16px 10px;
+        border-bottom: 1px solid rgba(15,23,42,.08);
+        background: linear-gradient(180deg, rgba(255,255,255,.96), rgba(255,255,255,.88));
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        min-height: 64px;
+        flex: 0 0 auto;
+    }
+
+    .viz-title {
+        margin: 0;
+        font-size: 14px;
+        font-weight: 500 !important;
+        line-height: 1.4;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        flex-wrap: wrap;
+        color: #111111;
+    }
+
+    .legend-inline,
+    .legend-pill,
+    .legend-dot {
+        display: none !important;
+    }
+
+    .viz-body {
+        padding: 12px;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        flex: 1 1 auto;
+        min-height: 0;
+    }
+
+    .barlist-frame {
+        background: rgba(255,255,255,.70);
+        border: 1px solid rgba(15,23,42,.08);
+        border-radius: 14px;
+        padding: 12px;
+        flex: 1 1 auto;
+        min-height: 0;
+        overflow: hidden;
+    }
+
+    .barlist-scroll {
+        height: 100%;
+        overflow-y: auto;
+        overflow-x: hidden;
+        padding-right: 6px;
+        scrollbar-gutter: stable;
+    }
+
+        .barlist-scroll::-webkit-scrollbar {
+            width: 10px;
+        }
+
+        .barlist-scroll::-webkit-scrollbar-track {
+            background: #eef2f7;
+            border-radius: 999px;
+        }
+
+        .barlist-scroll::-webkit-scrollbar-thumb {
+            background: #a9b8cc;
+            border-radius: 999px;
+        }
+
+    .risk-list {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+    }
+
+    .risk-row {
+        display: grid;
+        grid-template-columns: minmax(190px, 1fr) minmax(360px, 1.7fr);
+        gap: 14px;
+        align-items: center;
+        min-height: 58px;
+    }
+
+    .risk-label {
+        font-size: 12px;
+        line-height: 1.4;
+        color: #111111;
+        word-break: break-word;
+        overflow-wrap: anywhere;
+        font-weight: 500 !important;
+    }
+
+    .risk-main {
+        display: flex;
+        flex-direction: column;
+        gap: 7px;
+        min-width: 0;
+    }
+
+    .risk-summary-top {
+        font-size: 11px;
+        line-height: 1.45;
+        color: #111111;
+        white-space: normal;
+        word-break: break-word;
+        overflow-wrap: anywhere;
+        min-width: 0;
+        font-weight: 400 !important;
+    }
+
+    .risk-bar-wrap {
+        width: 100%;
+        height: 18px;
+        background: #edf2f7;
+        border-radius: 999px;
+        overflow: hidden;
+        border: 1px solid rgba(15,23,42,.08);
+        display: flex;
+        position: relative;
+    }
+
+    .risk-seg {
+        height: 100%;
+        min-width: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0 6px;
+        overflow: hidden;
+        white-space: nowrap;
+        font-size: 10px;
+        line-height: 1;
+        color: #fff;
+        font-weight: 500 !important;
+        text-shadow: 0 1px 1px rgba(0,0,0,.18);
+    }
+
+        .risk-seg.red {
+            background: #ef4444;
+        }
+
+        .risk-seg.amber {
+            background: #f59e0b;
+        }
+
+        .risk-seg.green {
+            background: #22c55e;
+        }
+
+    .risk-empty {
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #94a3b8;
+        font-size: 14px;
+        font-weight: 400 !important;
+    }
+
+    .mini-stat-row {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0,1fr));
+        gap: 8px;
+        flex: 0 0 82px;
+        min-height: 82px;
+        margin-top: auto;
+    }
+
+    .mini-stat {
+        border-radius: 12px;
+        padding: 10px 10px;
+        background: rgba(255,255,255,.86);
+        border: 1px solid rgba(15,23,42,.08);
+        text-align: center;
+        min-height: 82px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+    }
+
+        .mini-stat .k1 {
+            font-size: 11px;
+            color: #111111;
+            margin-bottom: 4px;
+            font-weight: 500 !important;
+        }
+
+        .mini-stat .k2 {
+            font-size: 24px;
+            font-weight: 500 !important;
+            line-height: 1.1;
+        }
+
+        .mini-stat.red .k2 {
+            color: #ef4444;
+        }
+
+        .mini-stat.amber .k2 {
+            color: #f59e0b;
+        }
+
+        .mini-stat.green .k2 {
+            color: #22c55e;
+        }
+
+    @media (max-width: 1860px) {
+        .risk-row {
+            grid-template-columns: minmax(180px, 1fr) minmax(320px, 1.5fr);
+        }
+    }
+
+    @media (max-width: 1320px) {
+        .risk-row {
+            grid-template-columns: minmax(170px, 1fr) minmax(280px, 1.35fr);
+        }
+    }
+
+    @media (max-width: 900px) {
+        .risk-row {
+            grid-template-columns: 1fr;
+            gap: 8px;
+        }
+    }
+
+    .heatmap-panel {
+        min-height: 560px;
+        display: flex;
+        flex-direction: column;
+        padding: 8px;
+    }
+
+        .heatmap-panel h4 {
+            margin: 0 0 6px;
+        }
+
+    .heatmap-box {
+        height: 500px !important;
+        min-height: 500px !important;
+        width: 100% !important;
+        position: relative;
+        flex: 1 1 auto;
+    }
+
+    #chCompanyRiskHeatmap {
+        width: 100% !important;
+        height: 100% !important;
+        display: block;
+    }
+
+    @media (max-width: 1200px) {
+        .heatmap-panel {
+            min-height: 500px;
+        }
+
+        .heatmap-box {
+            height: 390px !important;
+            min-height: 390px !important;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+{% set total_loss = (total_loss_amount|default(0)) %}
+{% set total_reduced = (total_reduced_amount|default(0)) %}
+{% set remaining_loss = (remaining_loss_amount|default(0)) %}
+
+<div class="dash-wrap">
+    <div class="dash-hero">
+        <div class="hero-left">
+            <div class="title-row">
+                <h1>📊 Ажлын мэдээлэл</h1>
+                <div class="clock-pill">
+                    <span class="clock-time" id="liveClock">—</span>
+                    <span class="clock-city">Улаанбаатар хот</span>
+                </div>
+            </div>
+
+            <div class="sub">
+                {% if selected_company %}
+                <span>· {{ selected_company }}</span>
+                {% endif %}
+            </div>
+        </div>
+
+        <form class="filters" method="get" action="{{ url_for('index') }}">
+            <select name="auditor" id="selAuditor">
+                <option value="">— Аудитор (бүгд) —</option>
+                {% for a in (auditors|default([])) %}
+                <option value="{{ a }}" {% if selected_auditor == a %}selected{% endif %}>{{ a }}</option>
+                {% endfor %}
+            </select>
+
+            <select name="company" id="selCompany">
+                <option value="">— Компани (бүгд) —</option>
+                {% for c in (companies|default([])) %}
+                <option value="{{ c }}" {% if selected_company == c %}selected{% endif %}>{{ c }}</option>
+                {% endfor %}
+            </select>
+
+            <button type="submit">Шүүх</button>
+            <a href="{{ url_for('index') }}">Цэвэрлэх</a>
+        </form>
+    </div>
+
+    <div class="ticker-wrap">
+        <div class="ticker-head">
+            <div class="ticker-title">📈 Түүхий эдийн ханш</div>
+            <div class="ticker-source">
+                Эх сурвалж:
+                <a href="https://www.tradingview.com/" target="_blank" rel="noopener">TradingView widget</a>
+            </div>
+        </div>
+
+        <div class="commodity-grid">
+            <div class="commodity-card">
+                <div class="commodity-card-head">
+                    <div class="commodity-name">Алт</div>
+                    <div class="commodity-market">XAUUSD</div>
+                </div>
+                <div class="commodity-body">
+                    <div class="tradingview-widget-container">
+                        <div class="tradingview-widget-container__widget"></div>
+                        <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js" async>
+                        {
+                          "autosize": true,
+                          "symbol": "OANDA:XAUUSD",
+                          "interval": "D",
+                          "timezone": "Asia/Ulaanbaatar",
+                          "theme": "light",
+                          "style": "2",
+                          "locale": "en",
+                          "allow_symbol_change": false,
+                          "hide_top_toolbar": true,
+                          "hide_legend": true,
+                          "save_image": false,
+                          "calendar": false,
+                          "support_host": "https://www.tradingview.com"
+                        }
+                        </script>
+                    </div>
+                </div>
+            </div>
+
+            <div class="commodity-card">
+                <div class="commodity-card-head">
+                    <div class="commodity-name">Мөнгө</div>
+                    <div class="commodity-market">XAGUSD</div>
+                </div>
+                <div class="commodity-body">
+                    <div class="tradingview-widget-container">
+                        <div class="tradingview-widget-container__widget"></div>
+                        <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js" async>
+                        {
+                          "autosize": true,
+                          "symbol": "OANDA:XAGUSD",
+                          "interval": "D",
+                          "timezone": "Asia/Ulaanbaatar",
+                          "theme": "light",
+                          "style": "2",
+                          "locale": "en",
+                          "allow_symbol_change": false,
+                          "hide_top_toolbar": true,
+                          "hide_legend": true,
+                          "save_image": false,
+                          "calendar": false,
+                          "support_host": "https://www.tradingview.com"
+                        }
+                        </script>
+                    </div>
+                </div>
+            </div>
+
+            <div class="commodity-card">
+                <div class="commodity-card-head">
+                    <div class="commodity-name">Зэс</div>
+                    <div class="commodity-market">CPER</div>
+                </div>
+                <div class="commodity-body">
+                    <div class="tradingview-widget-container">
+                        <div class="tradingview-widget-container__widget"></div>
+                        <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js" async>
+                        {
+                          "autosize": true,
+                          "symbol": "AMEX:CPER",
+                          "interval": "D",
+                          "timezone": "Asia/Ulaanbaatar",
+                          "theme": "light",
+                          "style": "2",
+                          "locale": "en",
+                          "allow_symbol_change": false,
+                          "hide_top_toolbar": true,
+                          "hide_legend": true,
+                          "save_image": false,
+                          "calendar": false,
+                          "support_host": "https://www.tradingview.com"
+                        }
+                        </script>
+                    </div>
+                </div>
+            </div>
+
+            <div class="commodity-card">
+                <div class="commodity-card-head">
+                    <div class="commodity-name">WTI газрын тос</div>
+                    <div class="commodity-market">USOIL</div>
+                </div>
+                <div class="commodity-body">
+                    <div class="tradingview-widget-container">
+                        <div class="tradingview-widget-container__widget"></div>
+                        <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js" async>
+                        {
+                          "autosize": true,
+                          "symbol": "TVC:USOIL",
+                          "interval": "D",
+                          "timezone": "Asia/Ulaanbaatar",
+                          "theme": "light",
+                          "style": "2",
+                          "locale": "en",
+                          "allow_symbol_change": false,
+                          "hide_top_toolbar": true,
+                          "hide_legend": true,
+                          "save_image": false,
+                          "calendar": false,
+                          "support_host": "https://www.tradingview.com"
+                        }
+                        </script>
+                    </div>
+                </div>
+            </div>
+
+            <div class="commodity-card">
+                <div class="commodity-card-head">
+                    <div class="commodity-name">Brent газрын тос</div>
+                    <div class="commodity-market">UKOIL</div>
+                </div>
+                <div class="commodity-body">
+                    <div class="tradingview-widget-container">
+                        <div class="tradingview-widget-container__widget"></div>
+                        <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js" async>
+                        {
+                          "autosize": true,
+                          "symbol": "TVC:UKOIL",
+                          "interval": "D",
+                          "timezone": "Asia/Ulaanbaatar",
+                          "theme": "light",
+                          "style": "2",
+                          "locale": "en",
+                          "allow_symbol_change": false,
+                          "hide_top_toolbar": true,
+                          "hide_legend": true,
+                          "save_image": false,
+                          "calendar": false,
+                          "support_host": "https://www.tradingview.com"
+                        }
+                        </script>
+                    </div>
+                </div>
+            </div>
+
+            <div class="commodity-card">
+                <div class="commodity-card-head">
+                    <div class="commodity-name">Төмрийн хүдэр</div>
+                    <div class="commodity-market">FEF1!</div>
+                </div>
+                <div class="commodity-body">
+                    <div class="tradingview-widget-container">
+                        <div class="tradingview-widget-container__widget"></div>
+                        <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js" async>
+                        {
+                          "autosize": true,
+                          "symbol": "SGX:FEF1!",
+                          "interval": "D",
+                          "timezone": "Asia/Ulaanbaatar",
+                          "theme": "light",
+                          "style": "2",
+                          "locale": "en",
+                          "allow_symbol_change": false,
+                          "hide_top_toolbar": true,
+                          "hide_legend": true,
+                          "save_image": false,
+                          "calendar": false,
+                          "support_host": "https://www.tradingview.com"
+                        }
+                        </script>
+                    </div>
+                </div>
+            </div>
+
+            <div class="commodity-card">
+                <div class="commodity-card-head">
+                    <div class="commodity-name">Нүүрс</div>
+                    <div class="commodity-market">NCF1!</div>
+                </div>
+                <div class="commodity-body">
+                    <div class="tradingview-widget-container">
+                        <div class="tradingview-widget-container__widget"></div>
+                        <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js" async>
+                        {
+                          "autosize": true,
+                          "symbol": "ICEEUR:NCF1!",
+                          "interval": "D",
+                          "timezone": "Asia/Ulaanbaatar",
+                          "theme": "light",
+                          "style": "2",
+                          "locale": "en",
+                          "allow_symbol_change": false,
+                          "hide_top_toolbar": true,
+                          "hide_legend": true,
+                          "save_image": false,
+                          "calendar": false,
+                          "support_host": "https://www.tradingview.com"
+                        }
+                        </script>
+                    </div>
+                </div>
+            </div>
+
+            <div class="commodity-card">
+                <div class="commodity-card-head">
+                    <div class="commodity-name">Уран</div>
+                    <div class="commodity-market">URA ETF</div>
+                </div>
+                <div class="commodity-body">
+                    <div class="tradingview-widget-container">
+                        <div class="tradingview-widget-container__widget"></div>
+                        <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js" async>
+                        {
+                          "autosize": true,
+                          "symbol": "AMEX:URA",
+                          "interval": "D",
+                          "timezone": "Asia/Ulaanbaatar",
+                          "theme": "light",
+                          "style": "2",
+                          "locale": "en",
+                          "allow_symbol_change": false,
+                          "hide_top_toolbar": true,
+                          "hide_legend": true,
+                          "save_image": false,
+                          "calendar": false,
+                          "support_host": "https://www.tradingview.com"
+                        }
+                        </script>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {% set ag = (active_guidelines|default([])) %}
+    {% if ag %}
+    <div class="active-guideline-wrap">
+        <div class="active-title">📌 Идэвхтэй хэрэгжиж байгаа удирдамж</div>
+        <div class="active-grid">
+            {% for g in ag %}
+            <div class="active-card">
+                <div class="g-company">{{ g.company_name or '—' }}</div>
+                <div class="g-meta">
+                    <div><span>Төрөл:</span> {{ g.audit_type or '—' }} / {{ g.audit_subtype or '—' }}</div>
+                    <div><span>Аудитын багын ахлагч:</span> {{ g.team_leader or '—' }}</div>
+                    <div><span>Багын гишүүд:</span> {{ (g.team_members or '').replace(';', ', ') }}</div>
+                    <div><span>Хамрах хугацаа:</span> {{ g.exec_start.strftime('%Y-%m-%d') if g.exec_start else '—' }} → {{ g.exec_end.strftime('%Y-%m-%d') if g.exec_end else '—' }}</div>
+                </div>
+                <div class="g-actions">
+                    <a href="{{ url_for('guideline_detail', gid=g.id) }}">Дэлгэрэнгүй</a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+    <div class="kpi-grid">
+        <div class="kpi glass k1">
+            <div class="kpi-left">
+                <div class="k-label">Нийт бүртгэгдсэн асуудал</div>
+                <div class="k-val">{{ total_issues|default(0) }}</div>
+            </div>
+        </div>
+
+        <div class="kpi glass k2">
+            <div class="kpi-left">
+                <div class="k-label">Нийт эргэн хяналт</div>
+                <div class="k-val">{{ total_followups|default(0) }}</div>
+            </div>
+        </div>
+
+        <div class="kpi glass k3">
+            <div class="kpi-left">
+                <div class="k-label">Эргэн хяналт хийгдсэн асуудал</div>
+                <div class="k-val">{{ issues_with_followup|default(0) }}</div>
+            </div>
+        </div>
+
+        <div class="kpi glass k4">
+            <div class="kpi-left">
+                <div class="k-label">Эргэн хяналт хийгдээгүй</div>
+                <div class="k-val">{{ issues_without_followup|default(0) }}</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="triple-grid">
+        <div class="viz-card glass">
+            <div class="viz-head">
+                <div class="viz-title">🧑‍💼 Аудиторын анх бүртгэсэн асуудлын тоо, эрсдэлийн түвшин</div>
+            </div>
+            <div class="viz-body">
+                <div class="barlist-frame">
+                    <div class="barlist-scroll">
+                        <div id="auditorRiskList" class="risk-list"></div>
+                    </div>
+                </div>
+                <div class="mini-stat-row">
+                    <div class="mini-stat red">
+                        <div class="k1">Өндөр</div>
+                        <div class="k2" id="statAuditorHigh">0</div>
+                    </div>
+                    <div class="mini-stat amber">
+                        <div class="k1">Дунд</div>
+                        <div class="k2" id="statAuditorMed">0</div>
+                    </div>
+                    <div class="mini-stat green">
+                        <div class="k1">Бага</div>
+                        <div class="k2" id="statAuditorLow">0</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="viz-card glass">
+            <div class="viz-head">
+                <div class="viz-title">📌 Компани бүрийн анх бүртгэсэн асуудлын тоо, эрсдэлийн түвшин</div>
+            </div>
+            <div class="viz-body">
+                <div class="barlist-frame">
+                    <div class="barlist-scroll">
+                        <div id="companyRiskList" class="risk-list"></div>
+                    </div>
+                </div>
+                <div class="mini-stat-row">
+                    <div class="mini-stat red">
+                        <div class="k1">Өндөр</div>
+                        <div class="k2" id="statCompanyHigh">0</div>
+                    </div>
+                    <div class="mini-stat amber">
+                        <div class="k1">Дунд</div>
+                        <div class="k2" id="statCompanyMed">0</div>
+                    </div>
+                    <div class="mini-stat green">
+                        <div class="k1">Бага</div>
+                        <div class="k2" id="statCompanyLow">0</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="viz-card glass">
+            <div class="viz-head">
+                <div class="viz-title">🔁 Аудиторын эргэн хяналт хийсэн тоо, эрсдэлийн түвшин</div>
+            </div>
+            <div class="viz-body">
+                <div class="barlist-frame">
+                    <div class="barlist-scroll">
+                        <div id="followupRiskList" class="risk-list"></div>
+                    </div>
+                </div>
+                <div class="mini-stat-row">
+                    <div class="mini-stat red">
+                        <div class="k1">Өндөр</div>
+                        <div class="k2" id="statFuHigh">0</div>
+                    </div>
+                    <div class="mini-stat amber">
+                        <div class="k1">Дунд</div>
+                        <div class="k2" id="statFuMed">0</div>
+                    </div>
+                    <div class="mini-stat green">
+                        <div class="k1">Бага</div>
+                        <div class="k2" id="statFuLow">0</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="grid" style="margin-top:16px;">
+        <div class="row-2col">
+            <div class="card glass">
+                <h3>📊 Анхны эрсдэлийн түвшин vs Эргэн хяналтын дараах эрсдэлийн түвшин</h3>
+                <div class="chart-box"><canvas id="chBeforeAfter"></canvas></div>
+            </div>
+
+            <div class="card glass money-card">
+                <h3>💰 Мөнгөн хохирол учруулсан үзүүлэлт</h3>
+                <div class="money-map">
+                    <div>
+                        <div class="money-3grid">
+                            <div class="money-tile total">
+                                <div class="t1">Мөнгөн хохирол учруулсан нийт дүн</div>
+                                <div class="t2">
+                                    <span class="m-ico up">▲</span>
+                                    {{ "{:,.0f}".format(total_loss or 0) }} ₮
+                                </div>
+                            </div>
+
+                            <div class="money-tile reduced">
+                                <div class="t1">Мөнгөн хохирол бууруулсан нийт дүн</div>
+                                <div class="t2">
+                                    <span class="m-ico down">▼</span>
+                                    {{ "{:,.0f}".format(total_reduced or 0) }} ₮
+                                </div>
+                            </div>
+
+                            <div class="money-tile remain">
+                                <div class="t1">Мөнгөн хохирол учруулсан үлдэгдэл дүн</div>
+                                <div class="t2 {% if remaining_loss > 0 %}blink-warn{% endif %}">
+                                    <span class="m-ico dot">●</span>
+                                    {{ "{:,.0f}".format(remaining_loss or 0) }} ₮
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="panel" style="display:flex;flex-direction:column;min-height:0;">
+                        <h4>Компанийн байршлын зураг</h4>
+                        <div class="hint" style="margin:0 0 8px;"></div>
+                        <div id="mnMapMini" class="map-box" style="height:100%; min-height:260px;"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card glass" style="grid-column:1 / -1; min-height:640px;">
+            <h3>📍 Компанийн эрсдэлийн түвшний зураглал ба Эрсдэлийн төрөл</h3>
+            <div class="split">
+                <div class="panel heatmap-panel">
+                    <h4>Компаниудын дундаж эрсдэлийн түвшний зураглал</h4>
+                    <div class="heatmap-box">
+                        <canvas id="chCompanyRiskHeatmap"></canvas>
+                    </div>
+                    <div class="note" id="heatNote"></div>
+                </div>
+
+                <div class="panel">
+                    <h4>Эрсдэлийн төрөл</h4>
+                    <div class="chart-box donut" style="height:500px;"><canvas id="chRiskTypeDonut"></canvas></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+  Chart.defaults.font.family = 'Montserrat, Arial, sans-serif';
+  Chart.defaults.font.weight = '400';
+  Chart.defaults.color = '#111111';
+
+  function pad2(n){ return String(n).padStart(2,'0'); }
+
+  function updateClock(){
+    const el = document.getElementById('liveClock');
+    if(!el) return;
+    try{
+      const d = new Date();
+      const parts = new Intl.DateTimeFormat('sv-SE', {
+        timeZone: 'Asia/Ulaanbaatar',
+        year:'numeric', month:'2-digit', day:'2-digit',
+        hour:'2-digit', minute:'2-digit', second:'2-digit',
+        hour12:false
+      }).formatToParts(d);
+
+      const get = (t)=> (parts.find(p=>p.type===t)?.value || '');
+      el.textContent = `${get('year')}.${get('month')}.${get('day')} · ${get('hour')}:${get('minute')}:${get('second')}`;
+    }catch(e){
+      const d = new Date();
+      el.textContent = `${d.getFullYear()}.${pad2(d.getMonth()+1)}.${pad2(d.getDate())} · ${pad2(d.getHours())}:${pad2(d.getMinutes())}:${pad2(d.getSeconds())}`;
+    }
+  }
+  updateClock();
+  setInterval(updateClock, 1000);
+
+  const selectedCompany = {{ (selected_company|default(''))|tojson }};
+
+  const auditorRiskLabels = {{ (auditor_risk_labels|default([]))|tojson }};
+  const auditorRiskLevels = {{ (auditor_risk_levels|default([]))|tojson }};
+  const auditorRiskMatrix = {{ (auditor_risk_matrix|default([]))|tojson }};
+
+  const companyRiskCompanies = {{ (company_risk_companies|default([]))|tojson }};
+  const companyRiskLevels    = {{ (company_risk_levels|default([]))|tojson }};
+  const companyRiskMatrix    = {{ (company_risk_matrix|default([]))|tojson }};
+
+  const fuAuditorLabels = {{ (fu_auditor_labels|default([]))|tojson }};
+  const fuAuditorLevels = {{ (fu_auditor_levels|default([]))|tojson }};
+  const fuAuditorMatrix = {{ (fu_auditor_matrix|default([]))|tojson }};
+
+  const initLabels  = {{ (init_labels|default(["Өндөр","Дунд","Бага"]))|tojson }};
+  const initValues  = {{ (init_values|default([0,0,0]))|tojson }};
+  const afterValues = {{ (after_values|default([0,0,0]))|tojson }};
+
+  const typeLabels = {{ (type_labels|default([]))|tojson }};
+  const typeValues = {{ (type_values|default([]))|tojson }};
+  const typeTotal  = {{ (type_total|default(0))|tojson }};
+
+  const companyAimag = {{ (company_aimag|default({}))|tojson }};
+  const companyMaxLevel = {{ (company_max_level|default({}))|tojson }};
+
+  function matrixLevelTotals(levels, matrix){
+    const out = {};
+    (levels || []).forEach((lvl, i) => {
+      out[lvl] = ((matrix[i] || []).reduce((a,b) => a + Number(b || 0), 0));
+    });
+    return out;
+  }
+
+  function setMiniStats(prefix, levels, matrix){
+    const map = matrixLevelTotals(levels, matrix);
+    const high = map["Өндөр"] || 0;
+    const med  = map["Дунд"] || 0;
+    const low  = map["Бага"] || 0;
+
+    const h = document.getElementById(prefix + "High");
+    const m = document.getElementById(prefix + "Med");
+    const l = document.getElementById(prefix + "Low");
+    if(h) h.textContent = high;
+    if(m) m.textContent = med;
+    if(l) l.textContent = low;
+  }
+
+  function safeNum(v){
+    return Number(v || 0);
+  }
+
+  function renderSegment(colorClass, value, pct){
+    if(value <= 0) return '';
+    const label = `${value}`;
+    if(pct >= 18){
+      return `<div class="risk-seg ${colorClass}" style="width:${pct}%;">${label}</div>`;
+    }
+    return `<div class="risk-seg ${colorClass}" style="width:${pct}%;" title="${label}"></div>`;
+  }
+
+  function renderRiskList(targetId, labels, levels, matrix){
+    const target = document.getElementById(targetId);
+    if(!target) return;
+
+    const redIndex = (levels || []).findIndex(x => x === "Өндөр");
+    const amberIndex = (levels || []).findIndex(x => x === "Дунд");
+    const greenIndex = (levels || []).findIndex(x => x === "Бага");
+
+    if(!labels || !labels.length){
+      target.innerHTML = '<div class="risk-empty">Мэдээлэл байхгүй</div>';
+      return;
+    }
+
+    const rowsHtml = labels.map((label, i) => {
+      const red = redIndex >= 0 ? safeNum(matrix?.[redIndex]?.[i]) : 0;
+      const amber = amberIndex >= 0 ? safeNum(matrix?.[amberIndex]?.[i]) : 0;
+      const green = greenIndex >= 0 ? safeNum(matrix?.[greenIndex]?.[i]) : 0;
+      const total = red + amber + green;
+
+      if(total <= 0){
+        return `
+          <div class="risk-row">
+            <div class="risk-label">${label}</div>
+            <div class="risk-main">
+              <div class="risk-summary-top">Мэдээлэл байхгүй</div>
+              <div class="risk-bar-wrap"></div>
+            </div>
+          </div>
+        `;
+      }
+
+      let redPct = total ? Math.round(red / total * 100) : 0;
+      let amberPct = total ? Math.round(amber / total * 100) : 0;
+      let greenPct = total ? Math.round(green / total * 100) : 0;
+
+      const sumPct = redPct + amberPct + greenPct;
+      if(sumPct !== 100){
+        const diff = 100 - sumPct;
+        if(red >= amber && red >= green) redPct += diff;
+        else if(amber >= red && amber >= green) amberPct += diff;
+        else greenPct += diff;
+      }
+
+      const summaryParts = [];
+      if(red > 0) summaryParts.push(`Өндөр: ${red} (${redPct}%)`);
+      if(amber > 0) summaryParts.push(`Дунд: ${amber} (${amberPct}%)`);
+      if(green > 0) summaryParts.push(`Бага: ${green} (${greenPct}%)`);
+
+      return `
+        <div class="risk-row">
+          <div class="risk-label">${label} (${total})</div>
+          <div class="risk-main">
+            <div class="risk-summary-top">${summaryParts.join(' · ')}</div>
+            <div class="risk-bar-wrap">
+              ${renderSegment('red', red, redPct)}
+              ${renderSegment('amber', amber, amberPct)}
+              ${renderSegment('green', green, greenPct)}
+            </div>
+          </div>
+        </div>
+      `;
+    }).join('');
+
+    target.innerHTML = rowsHtml;
+  }
+
+  const noDataPlugin = {
+    id: 'noDataPlugin',
+    afterDraw(chart){
+      const datasets = chart?.data?.datasets || [];
+      const hasData = datasets.some(ds => (ds.data || []).some(v => {
+        if(typeof v === 'object' && v !== null) return Number(v.r || v.y || 0) > 0;
+        return Number(v || 0) > 0;
+      }));
+      if(hasData) return;
+
+      const { ctx, chartArea } = chart;
+      if(!chartArea) return;
+
+      const x = (chartArea.left + chartArea.right) / 2;
+      const y = (chartArea.top + chartArea.bottom) / 2;
+
+      ctx.save();
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillStyle = '#94a3b8';
+      ctx.font = '400 14px Montserrat, Arial, sans-serif';
+      ctx.fillText('Мэдээлэл байхгүй', x, y);
+      ctx.restore();
+    }
+  };
+
+  const barValueLabelPlugin = {
+    id: 'barValueLabelPlugin',
+    afterDatasetsDraw(chart){
+      const { ctx } = chart;
+      ctx.save();
+      ctx.font = '400 11px Montserrat, Arial, sans-serif';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+
+      chart.data.datasets.forEach((dataset, di) => {
+        const meta = chart.getDatasetMeta(di);
+        if(meta.hidden) return;
+
+        meta.data.forEach((bar, i) => {
+          const value = Number(dataset.data?.[i] || 0);
+          if(value <= 0) return;
+
+          const props = bar.getProps(['x', 'y', 'base', 'width', 'height'], true);
+          const centerX = props.x;
+          const topY = Math.min(props.y, props.base);
+          const bottomY = Math.max(props.y, props.base);
+          const centerY = (topY + bottomY) / 2;
+          const barWidth = props.width || 0;
+          const barHeight = Math.abs(bottomY - topY);
+
+          const text = String(value);
+
+          if(barHeight >= 24 && barWidth >= 24){
+            ctx.fillStyle = dataset.borderWidth && dataset.borderWidth > 0 ? '#111111' : '#ffffff';
+            ctx.fillText(text, centerX, centerY);
+          } else {
+            ctx.fillStyle = '#111111';
+            ctx.textBaseline = 'bottom';
+            ctx.fillText(text, centerX, topY - 4);
+            ctx.textBaseline = 'middle';
+          }
+        });
+      });
+
+      ctx.restore();
+    }
+  };
+
+  const heatmapBackgroundPlugin = {
+    id: 'heatmapBackgroundPlugin',
+    beforeDraw(chart){
+      const { ctx, chartArea } = chart;
+      if(!chartArea) return;
+
+      const { left, top, right, bottom, width, height } = chartArea;
+      const gradient = ctx.createLinearGradient(left, 0, right, 0);
+      gradient.addColorStop(0, '#1fbf5b');
+      gradient.addColorStop(0.45, '#f5d90a');
+      gradient.addColorStop(0.72, '#ff9f0a');
+      gradient.addColorStop(1, '#ff3b30');
+
+      ctx.save();
+      ctx.fillStyle = gradient;
+      ctx.globalAlpha = 0.96;
+      ctx.fillRect(left, top, width, height);
+
+      ctx.strokeStyle = 'rgba(255,255,255,.45)';
+      ctx.lineWidth = 1;
+
+      for(let i=1;i<4;i++){
+        const x = left + (width / 4) * i;
+        ctx.beginPath();
+        ctx.moveTo(x, top);
+        ctx.lineTo(x, bottom);
+        ctx.stroke();
+      }
+
+      for(let i=1;i<5;i++){
+        const y = top + (height / 5) * i;
+        ctx.beginPath();
+        ctx.moveTo(left, y);
+        ctx.lineTo(right, y);
+        ctx.stroke();
+      }
+
+      ctx.restore();
+    }
+  };
+
+  const heatmapPointLabelPlugin = {
+    id: 'heatmapPointLabelPlugin',
+    afterDatasetsDraw(chart){
+      const { ctx, chartArea } = chart;
+      const meta = chart.getDatasetMeta(0);
+      if(!meta || !meta.data || !chartArea) return;
+
+      const placed = [];
+
+      function overlaps(a, b){
+        return !(
+          a.right < b.left ||
+          a.left > b.right ||
+          a.bottom < b.top ||
+          a.top > b.bottom
+        );
+      }
+
+      function makeBox(x, y, textW, textH, align){
+        if(align === 'center'){
+          return {
+            left: x - textW / 2,
+            right: x + textW / 2,
+            top: y - textH / 2,
+            bottom: y + textH / 2
+          };
+        }
+        return {
+          left: align === 'left' ? x : x - textW,
+          right: align === 'left' ? x + textW : x,
+          top: y - textH / 2,
+          bottom: y + textH / 2
+        };
+      }
+
+      function inside(box, area, margin){
+        return (
+          box.left >= area.left + margin &&
+          box.right <= area.right - margin &&
+          box.top >= area.top + margin &&
+          box.bottom <= area.bottom - margin
+        );
+      }
+
+      ctx.save();
+      ctx.font = '400 9px Montserrat, Arial, sans-serif';
+      ctx.fillStyle = '#ffffff';
+      ctx.strokeStyle = 'rgba(0,0,0,.30)';
+      ctx.lineWidth = 4;
+
+      const items = meta.data.map((pt, i) => ({
+        pt,
+        raw: chart.data.datasets[0].data[i]
+      })).sort((a, b) => (b.raw?.r || 0) - (a.raw?.r || 0));
+
+      items.forEach(({ pt, raw }) => {
+        if(!raw) return;
+
+        const label = raw.shortLabel || raw.label || '';
+        if(!label) return;
+
+        const textW = ctx.measureText(label).width;
+        const textH = 11;
+        const r = raw.r || 8;
+        const margin = 8;
+        const gap = 8 + r;
+
+        const candidates = [
+          { x: pt.x + gap, y: pt.y, align: 'left' },
+          { x: pt.x - gap, y: pt.y, align: 'right' },
+          { x: pt.x, y: pt.y - gap - 2, align: 'center' },
+          { x: pt.x, y: pt.y + gap + 2, align: 'center' },
+          { x: pt.x + gap, y: pt.y - gap, align: 'left' },
+          { x: pt.x + gap, y: pt.y + gap, align: 'left' },
+          { x: pt.x - gap, y: pt.y - gap, align: 'right' },
+          { x: pt.x - gap, y: pt.y + gap, align: 'right' }
+        ];
+
+        let picked = null;
+
+        for (const c of candidates) {
+          const box = makeBox(c.x, c.y, textW, textH, c.align);
+          const bad = placed.some(p => overlaps(box, p));
+          if (!bad && inside(box, chartArea, margin)) {
+            picked = { ...c, box };
+            break;
+          }
+        }
+
+        if (!picked) {
+          let fallback = null;
+          let bestPenalty = Infinity;
+
+          for (const c of candidates) {
+            const box = makeBox(c.x, c.y, textW, textH, c.align);
+            let penalty = 0;
+
+            placed.forEach(p => {
+              if (overlaps(box, p)) penalty += 1000;
+            });
+
+            if (box.left < chartArea.left + margin) penalty += (chartArea.left + margin - box.left);
+            if (box.right > chartArea.right - margin) penalty += (box.right - (chartArea.right - margin));
+            if (box.top < chartArea.top + margin) penalty += (chartArea.top + margin - box.top);
+            if (box.bottom > chartArea.bottom - margin) penalty += (box.bottom - (chartArea.bottom - margin));
+
+            if (penalty < bestPenalty) {
+              bestPenalty = penalty;
+              fallback = { ...c, box };
+            }
+          }
+
+          picked = fallback;
+        }
+
+        if (!picked) return;
+
+        let drawX = picked.x;
+        let drawY = picked.y;
+        let align = picked.align;
+        let box = picked.box;
+
+        if (box.left < chartArea.left + margin) {
+          if (align === 'center') drawX += (chartArea.left + margin - box.left);
+          else { drawX = chartArea.left + margin; align = 'left'; }
+        }
+        if (box.right > chartArea.right - margin) {
+          if (align === 'center') drawX -= (box.right - (chartArea.right - margin));
+          else { drawX = chartArea.right - margin; align = 'right'; }
+        }
+        if (box.top < chartArea.top + margin) drawY += (chartArea.top + margin - box.top);
+        if (box.bottom > chartArea.bottom - margin) drawY -= (box.bottom - (chartArea.bottom - margin));
+
+        box = makeBox(drawX, drawY, textW, textH, align);
+        placed.push(box);
+
+        ctx.beginPath();
+        ctx.moveTo(pt.x, pt.y);
+        if (align === 'center') {
+          ctx.lineTo(drawX, drawY > pt.y ? box.top : box.bottom);
+        } else {
+          ctx.lineTo(align === 'left' ? box.left - 4 : box.right + 4, drawY);
+        }
+        ctx.strokeStyle = 'rgba(255,255,255,.55)';
+        ctx.lineWidth = 1;
+        ctx.stroke();
+
+        ctx.strokeStyle = 'rgba(0,0,0,.30)';
+        ctx.lineWidth = 4;
+        ctx.textAlign = align;
+        ctx.textBaseline = 'middle';
+        ctx.strokeText(label, drawX, drawY);
+        ctx.fillText(label, drawX, drawY);
+      });
+
+      ctx.restore();
+    }
+  };
+
+  function colorByLevel(level, alpha){
+    const t = String(level || "").toLowerCase();
+    if(t.includes("өндөр")) return `rgba(239,68,68,${alpha})`;
+    if(t.includes("дунд"))  return `rgba(245,158,11,${alpha})`;
+    if(t.includes("бага"))  return `rgba(34,197,94,${alpha})`;
+    return `rgba(11,95,87,${alpha})`;
+  }
+
+  function avgScoreToLevel(score){
+    const s = Number(score || 0);
+    if(s >= 2.5) return "Өндөр";
+    if(s >= 1.75) return "Дунд";
+    if(s > 0) return "Бага";
+    return "—";
+  }
+
+  function beforeAfterChart(canvasId){
+    const el = document.getElementById(canvasId);
+    if(!el) return;
+
+    const labels = initLabels;
+    const beforeBG = labels.map(l => colorByLevel(l, .84));
+    const afterBG  = labels.map(l => colorByLevel(l, .10));
+    const afterBD  = labels.map(l => colorByLevel(l, 1));
+
+    new Chart(el,{
+      type:'bar',
+      data:{
+        labels,
+        datasets:[
+          {
+            label:'Эрсдэлийн анхны түвшин',
+            data:initValues,
+            backgroundColor: beforeBG,
+            borderWidth: 0,
+            borderRadius: 8,
+            barThickness: 58,
+            maxBarThickness: 58
+          },
+          {
+            label:'Эргэн хяналтын дараах эрсдэлийн түвшин',
+            data:afterValues,
+            backgroundColor: afterBG,
+            borderColor: afterBD,
+            borderWidth: 2,
+            borderRadius: 8,
+            barThickness: 32,
+            maxBarThickness: 32
+          }
+        ]
+      },
+      plugins:[noDataPlugin, barValueLabelPlugin],
+      options:{
+        responsive:true,
+        maintainAspectRatio:false,
+        animation:false,
+        layout:{ padding:{ top:18, right:8, bottom:0, left:8 } },
+        plugins:{
+          legend:{
+            display:true,
+            position:'bottom',
+            labels:{
+              usePointStyle:true,
+              pointStyle:'rectRounded',
+              boxWidth:10,
+              boxHeight:10,
+              color:'#111111',
+              font:{ weight: '400', size: 11 },
+              padding: 14
+            }
+          },
+          tooltip: {
+            backgroundColor: 'rgba(255,255,255,.98)',
+            borderColor: 'rgba(15,23,42,.14)',
+            borderWidth: 1,
+            titleColor: '#111111',
+            bodyColor: '#111111',
+            titleFont: { weight: '500' },
+            bodyFont: { weight: '400' }
+          }
+        },
+        scales:{
+          x:{
+            grid:{ color: 'rgba(15,23,42,.10)' },
+            ticks:{ font:{size:11, weight:'400'}, color:'#111111' },
+            border:{display:false}
+          },
+          y:{
+            beginAtZero:true,
+            grid:{ color: 'rgba(15,23,42,.10)' },
+            ticks:{ precision:0, font:{size:11, weight:'400'}, color:'#111111' },
+            border:{display:false}
+          }
+        }
+      }
+    });
+  }
+
+  function buildCompanyRiskHeatPoints(){
+    const highIndex = (companyRiskLevels || []).findIndex(v => v === 'Өндөр');
+    const medIndex  = (companyRiskLevels || []).findIndex(v => v === 'Дунд');
+    const lowIndex  = (companyRiskLevels || []).findIndex(v => v === 'Бага');
+
+    const totals = [];
+    (companyRiskCompanies || []).forEach((name, i) => {
+      const high = highIndex >= 0 ? safeNum(companyRiskMatrix?.[highIndex]?.[i]) : 0;
+      const med  = medIndex  >= 0 ? safeNum(companyRiskMatrix?.[medIndex]?.[i])  : 0;
+      const low  = lowIndex  >= 0 ? safeNum(companyRiskMatrix?.[lowIndex]?.[i])  : 0;
+      totals.push(high + med + low);
+    });
+
+    const maxTotal = Math.max(...totals, 1);
+
+    return (companyRiskCompanies || []).map((name, i) => {
+      const high = highIndex >= 0 ? safeNum(companyRiskMatrix?.[highIndex]?.[i]) : 0;
+      const med  = medIndex  >= 0 ? safeNum(companyRiskMatrix?.[medIndex]?.[i])  : 0;
+      const low  = lowIndex  >= 0 ? safeNum(companyRiskMatrix?.[lowIndex]?.[i])  : 0;
+      const total = high + med + low;
+
+      const avgScore = total > 0 ? ((high * 3) + (med * 2) + (low * 1)) / total : 0;
+      const avgLevel = avgScoreToLevel(avgScore);
+
+      const x = total > 0 ? avgScore : 1;
+      const y = total > 0 ? (0.9 + ((total / maxTotal) * 3.1)) : 0.9;
+      const shortLabel = name.length > 14 ? name.slice(0, 14) + '…' : name;
+
+      return {
+        x,
+        y,
+        r: Math.max(7, Math.min(16, 6 + Math.sqrt(total) * 2.2)),
+        label: name,
+        shortLabel,
+        total,
+        avgScore,
+        avgLevel,
+        high,
+        med,
+        low
+      };
+    });
+  }
+
+  function companyRiskHeatmap(){
+    const el = document.getElementById('chCompanyRiskHeatmap');
+    if(!el) return;
+
+    const points = buildCompanyRiskHeatPoints();
+
+    const bgColors = points.map(p => {
+      if(p.avgScore >= 2.5) return 'rgba(239,68,68,.92)';
+      if(p.avgScore >= 1.75) return 'rgba(245,158,11,.92)';
+      return 'rgba(34,197,94,.92)';
+    });
+
+    const note = document.getElementById('heatNote');
+    if(note){
+      note.textContent = 'X тэнхлэг: дундаж эрсдэлийн оноо ((Өндөр×3 + Дунд×2 + Бага×1) / Нийт асуудал)';
+    }
+
+    new Chart(el, {
+      type: 'bubble',
+      data: {
+        datasets: [{
+          label: 'Компани',
+          data: points,
+          backgroundColor: bgColors,
+          borderColor: '#ffffff',
+          borderWidth: 3,
+          hoverRadius: 18,
+          clip: false
+        }]
+      },
+      plugins: [heatmapBackgroundPlugin, heatmapPointLabelPlugin, noDataPlugin],
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        animation: false,
+        layout: { padding: { top: 10, right: 18, bottom: 8, left: 18 } },
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            backgroundColor: 'rgba(255,255,255,.98)',
+            borderColor: 'rgba(15,23,42,.14)',
+            borderWidth: 1,
+            titleColor: '#111111',
+            bodyColor: '#111111',
+            titleFont: { weight: '500' },
+            bodyFont: { weight: '400' },
+            callbacks: {
+              title(items){
+                return items?.[0]?.raw?.label || '—';
+              },
+              label(ctx){
+                const p = ctx.raw || {};
+                return [
+                  `Дундаж эрсдэлийн оноо: ${(Number(p.avgScore || 0)).toFixed(2)}`,
+                  `Дундаж түвшин: ${p.avgLevel || '—'}`,
+                  `Нийт асуудал: ${p.total || 0}`,
+                  `Өндөр: ${p.high || 0}`,
+                  `Дунд: ${p.med || 0}`,
+                  `Бага: ${p.low || 0}`
+                ];
+              }
+            }
+          }
+        },
+        scales: {
+          x: {
+            min: 1,
+            max: 3,
+            grid: { color: 'rgba(255,255,255,.35)' },
+            border: { display: false },
+            ticks: {
+              color: '#ffffff',
+              font: { size: 10, weight: '400' },
+              stepSize: 1,
+              padding: 4,
+              callback(value){
+                if(value === 1) return 'Бага';
+                if(value === 2) return 'Дунд';
+                if(value === 3) return 'Өндөр';
+                return '';
+              }
+            },
+            title: {
+              display: false
+            }
+          },
+          y: {
+            min: 0,
+            max: 4.4,
+            grid: { color: 'rgba(255,255,255,.35)' },
+            border: { display: false },
+            ticks: {
+              color: '#ffffff',
+              font: { size: 10, weight: '400' },
+              stepSize: 1,
+              padding: 4,
+              callback(value){
+                if(value === 1) return 'Бага';
+                if(value === 2) return 'Дунд';
+                if(value === 3) return 'Их';
+                if(value === 4) return 'Маш их';
+                return '';
+              }
+            },
+            title: {
+              display: false
+            }
+          }
+        }
+      }
+    });
+  }
+
+  function riskTypeDonut(){
+    const el = document.getElementById('chRiskTypeDonut');
+    if(!el) return;
+
+    const labels = (typeLabels||[]);
+    const values = (typeValues||[]).map(v=>Number(v||0));
+    const total = Number(typeTotal || values.reduce((a,b)=>a+b,0) || 0);
+
+    function colorByIndex(i, a){
+      const pal = [
+        [11,95,87],[20,184,166],[59,130,246],[168,85,247],[245,158,11],[239,68,68],
+        [34,197,94],[14,165,233],[236,72,153],[99,102,241],[163,230,53],[2,132,199]
+      ];
+      const p = pal[i % pal.length];
+      return `rgba(${p[0]},${p[1]},${p[2]},${a})`;
+    }
+
+    function wrapText(ctx, text, x, y, maxWidth, lineHeight, maxLines){
+      const words = String(text||"").split(/\s+/).filter(Boolean);
+      const lines = [];
+      let line = "";
+      for(let n=0;n<words.length;n++){
+        const test = line ? (line + " " + words[n]) : words[n];
+        if(ctx.measureText(test).width <= maxWidth){
+          line = test;
+        } else {
+          if(line) lines.push(line);
+          line = words[n];
+          if(lines.length >= (maxLines-1)) break;
+        }
+      }
+      if(line && lines.length < maxLines) lines.push(line);
+
+      const startY = y - ((lines.length-1) * lineHeight)/2;
+      lines.forEach((ln, i) => ctx.fillText(ln, x, startY + i*lineHeight));
+    }
+
+    const centerTotal = {
+      id:'centerTypeTotal',
+      afterDraw(chart){
+        const meta = chart.getDatasetMeta(0);
+        if(!meta?.data?.length) return;
+        const { ctx } = chart;
+        const x = meta.data[0].x, y = meta.data[0].y;
+        const arc = meta.data[0];
+        const p = arc.getProps(['innerRadius'], true);
+        const maxW = Math.max(80, (p.innerRadius || 90) * 1.55);
+
+        ctx.save();
+        ctx.textAlign='center';
+        ctx.textBaseline='middle';
+
+        ctx.fillStyle = '#111111';
+        ctx.font='500 22px Montserrat, Arial, sans-serif';
+        ctx.fillText(String(total || 0), x, y - 10);
+
+        ctx.fillStyle = '#111111';
+        ctx.font='400 10px Montserrat, Arial, sans-serif';
+        wrapText(ctx, 'Нийт бүртгэгдсэн асуудлын эрсдэлийн төрөл', x, y + 16, maxW, 12, 3);
+
+        ctx.restore();
+      }
+    };
+
+    const donutPercentLabelPlugin = {
+      id: 'donutPercentLabelPlugin',
+      afterDatasetsDraw(chart){
+        const dataset = chart.data.datasets?.[0];
+        const meta = chart.getDatasetMeta(0);
+        if(!dataset || !meta || !meta.data?.length) return;
+
+        const visibleTotal = dataset.data.reduce((sum, v, i) => {
+          return chart.getDataVisibility(i) ? sum + Number(v || 0) : sum;
+        }, 0);
+
+        if(visibleTotal <= 0) return;
+
+        const { ctx } = chart;
+        ctx.save();
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+
+        meta.data.forEach((arc, i) => {
+          if(!chart.getDataVisibility(i)) return;
+
+          const value = Number(dataset.data[i] || 0);
+          if(value <= 0) return;
+
+          const percent = (value / visibleTotal) * 100;
+          if(percent < 4) return;
+
+          const props = arc.getProps(
+            ['x', 'y', 'startAngle', 'endAngle', 'innerRadius', 'outerRadius'],
+            true
+          );
+
+          const angle = props.endAngle - props.startAngle;
+          if(angle < 0.22) return;
+
+          const midAngle = (props.startAngle + props.endAngle) / 2;
+          const radius = props.innerRadius + ((props.outerRadius - props.innerRadius) * 0.58);
+          const x = props.x + Math.cos(midAngle) * radius;
+          const y = props.y + Math.sin(midAngle) * radius;
+
+          const ringThickness = props.outerRadius - props.innerRadius;
+          const fontSize = Math.max(10, Math.min(13, ringThickness * 0.34));
+
+          ctx.font = `500 ${fontSize}px Montserrat, Arial, sans-serif`;
+          ctx.fillStyle = '#ffffff';
+          ctx.strokeStyle = 'rgba(0,0,0,.28)';
+          ctx.lineWidth = 3;
+          const text = `${Math.round(percent)}%`;
+
+          ctx.strokeText(text, x, y);
+          ctx.fillText(text, x, y);
+        });
+
+        ctx.restore();
+      }
+    };
+
+    new Chart(el,{
+      type:'doughnut',
+      data:{
+        labels,
+        datasets:[{
+          data: values,
+          backgroundColor: labels.map((_,i)=>colorByIndex(i,.90)),
+          borderWidth: 0,
+          hoverOffset: 6
+        }]
+      },
+      options:{
+        responsive:true,
+        maintainAspectRatio:false,
+        animation:false,
+        cutout:'70%',
+        plugins:{
+          legend:{
+            display:true,
+            position:'bottom',
+            labels:{
+              usePointStyle:true,
+              pointStyle:'rectRounded',
+              boxWidth:10,
+              boxHeight:10,
+              color:'#111111',
+              font:{ weight: '400', size: 11 },
+              padding: 14,
+              generateLabels: (chart) => {
+                const ds = chart.data.datasets[0];
+                const visibleTotal = ds.data.reduce((sum, val, idx) => {
+                  return chart.getDataVisibility(idx) ? sum + Number(val || 0) : sum;
+                }, 0);
+
+                return chart.data.labels.map((lbl, i) => {
+                  const v = Number(ds.data[i]||0);
+                  const hidden = chart.getDataVisibility(i) === false;
+                  const pct = visibleTotal > 0 ? Math.round((v / visibleTotal) * 100) : 0;
+
+                  return {
+                    text: `${lbl} (${v}, ${pct}%)`,
+                    fillStyle: ds.backgroundColor[i],
+                    strokeStyle: ds.backgroundColor[i],
+                    hidden,
+                    index: i
+                  };
+                });
+              }
+            }
+          },
+          tooltip: {
+            backgroundColor: 'rgba(255,255,255,.98)',
+            borderColor: 'rgba(15,23,42,.14)',
+            borderWidth: 1,
+            titleColor: '#111111',
+            bodyColor: '#111111',
+            titleFont: { weight: '500' },
+            bodyFont: { weight: '400' },
+            callbacks: {
+              label(context){
+                const value = Number(context.raw || 0);
+                const ds = context.chart.data.datasets[0];
+                const visibleTotal = ds.data.reduce((sum, val, idx) => {
+                  return context.chart.getDataVisibility(idx) ? sum + Number(val || 0) : sum;
+                }, 0);
+                const pct = visibleTotal > 0 ? ((value / visibleTotal) * 100).toFixed(1) : '0.0';
+                return `${context.label}: ${value} (${pct}%)`;
+              }
+            }
+          }
+        }
+      },
+      plugins:[centerTotal, donutPercentLabelPlugin, noDataPlugin]
+    });
+  }
+
+  const AIMAG_CENTER = {
+    "Ulaanbaatar":[47.9186,106.9170],
+    "Orkhon":[49.0276,104.0443],
+    "Darkhan-Uul":[49.4648,105.9743],
+    "Selenge":[49.2966,106.4561],
+    "Dornogovi":[44.9000,110.1500],
+    "Dundgovi":[45.5000,106.0000],
+    "Dornod":[48.0667,114.5000],
+    "Omnogovi":[43.0000,104.5000],
+    "Baganuur":[47.7819,108.3640],
+    "Govisumber":[46.3600,108.3600],
+    "Khentii":[47.5000,110.6000],
+    "Unknown":[47.9186,106.9170]
+  };
+
+  function normAimag(a){
+    if(!a) return "Unknown";
+    if(a === "Erdenet") return "Orkhon";
+    return a;
+  }
+
+  function buildCompanyAvgRiskMap(){
+    const highIndex = (companyRiskLevels || []).findIndex(v => v === 'Өндөр');
+    const medIndex  = (companyRiskLevels || []).findIndex(v => v === 'Дунд');
+    const lowIndex  = (companyRiskLevels || []).findIndex(v => v === 'Бага');
+    const out = {};
+
+    (companyRiskCompanies || []).forEach((company, i) => {
+      const high = highIndex >= 0 ? safeNum(companyRiskMatrix?.[highIndex]?.[i]) : 0;
+      const med  = medIndex  >= 0 ? safeNum(companyRiskMatrix?.[medIndex]?.[i])  : 0;
+      const low  = lowIndex  >= 0 ? safeNum(companyRiskMatrix?.[lowIndex]?.[i])  : 0;
+      const total = high + med + low;
+      const avgScore = total > 0 ? ((high * 3) + (med * 2) + (low * 1)) / total : 0;
+      out[company] = {
+        total,
+        avgScore,
+        avgLevel: avgScoreToLevel(avgScore)
+      };
+    });
+
+    return out;
+  }
+
+  const companyAvgRiskMap = buildCompanyAvgRiskMap();
+
+  function markerColorByCompany(company){
+    const avg = companyAvgRiskMap?.[company];
+    const score = Number(avg?.avgScore || 0);
+
+    if(score >= 2.5) return {fill:'#ef4444', stroke:'rgba(239,68,68,.92)'};
+    if(score >= 1.75) return {fill:'#f59e0b', stroke:'rgba(245,158,11,.92)'};
+    if(score > 0) return {fill:'#22c55e', stroke:'rgba(34,197,94,.92)'};
+
+    const lvl = (companyMaxLevel && companyMaxLevel[company]) ? companyMaxLevel[company] : "";
+    if(lvl === "Өндөр") return {fill:'#ef4444', stroke:'rgba(239,68,68,.92)'};
+    if(lvl === "Дунд")  return {fill:'#f59e0b', stroke:'rgba(245,158,11,.92)'};
+    if(lvl === "Бага")  return {fill:'#22c55e', stroke:'rgba(34,197,94,.92)'};
+    return {fill:'#0b5f57', stroke:'rgba(11,95,87,.92)'};
+  }
+
+  const miniMapEl = document.getElementById('mnMapMini');
+  let miniMap = null;
+  const companyMarkersMini = {};
+
+  if (miniMapEl) {
+    miniMap = L.map('mnMapMini', { scrollWheelZoom:false, zoomControl:true, attributionControl:true })
+      .setView([46.6,104.5], 5);
+
+    L.tileLayer(
+      'https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}',
+      { maxZoom: 10, attribution: 'Tiles © Esri' }
+    ).addTo(miniMap);
+
+    function addCompanyMarkerMini(company){
+      const aim = normAimag(companyAimag[company]);
+      const center = AIMAG_CENTER[aim] || AIMAG_CENTER["Unknown"];
+      const col = markerColorByCompany(company);
+      const avg = companyAvgRiskMap?.[company] || {};
+      const avgScore = Number(avg.avgScore || 0);
+      const avgLevel = avg.avgLevel || "—";
+
+      const popup = `
+        <div style="font-size:12px;line-height:1.5;color:#0b1220;font-weight:400;">
+          <div style="margin-bottom:4px">${company}</div>
+          <div>Аймаг: ${aim}</div>
+          <div>Дундаж түвшин: ${avgLevel}</div>
+          <div>Дундаж оноо: ${avgScore ? avgScore.toFixed(2) : '—'}</div>
+        </div>`;
+
+      const m = L.circleMarker(center, {
+        radius: 8,
+        weight: 2,
+        color: col.stroke,
+        fillColor: col.fill,
+        fillOpacity: .92
+      }).addTo(miniMap);
+
+      m.bindPopup(popup);
+      companyMarkersMini[company] = m;
+    }
+
+    Object.keys(companyAimag || {}).forEach(addCompanyMarkerMini);
+  }
+
+  function zoomToCompany(company){
+    if(!miniMap || !company) return;
+    const aim = normAimag((companyAimag && companyAimag[company]) || "Unknown");
+    const center = AIMAG_CENTER[aim] || AIMAG_CENTER["Unknown"];
+    miniMap.setView(center, 7, { animate:true });
+    if(companyMarkersMini[company]) companyMarkersMini[company].openPopup();
+  }
+
+  const selCompany = document.getElementById("selCompany");
+  if(selCompany){
+    selCompany.addEventListener("change", (e)=>{ e.target.form.submit(); });
+  }
+
+  const selAuditor = document.getElementById("selAuditor");
+  if(selAuditor){
+    selAuditor.addEventListener("change", (e)=>{ e.target.form.submit(); });
+  }
+
+  window.addEventListener("load", ()=>{
+    if (miniMap) {
+      setTimeout(()=>{ miniMap.invalidateSize(); }, 160);
+      if(selectedCompany) setTimeout(()=>zoomToCompany(selectedCompany), 260);
+    }
+
+    renderRiskList("auditorRiskList", auditorRiskLabels, auditorRiskLevels, auditorRiskMatrix);
+    renderRiskList("companyRiskList", companyRiskCompanies, companyRiskLevels, companyRiskMatrix);
+    renderRiskList("followupRiskList", fuAuditorLabels, fuAuditorLevels, fuAuditorMatrix);
+
+    setMiniStats("statAuditor", auditorRiskLevels, auditorRiskMatrix);
+    setMiniStats("statCompany", companyRiskLevels, companyRiskMatrix);
+    setMiniStats("statFu", fuAuditorLevels, fuAuditorMatrix);
+
+    beforeAfterChart("chBeforeAfter");
+    companyRiskHeatmap();
+    riskTypeDonut();
+  });
+</script>
+{% endblock %}

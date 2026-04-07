@@ -1,0 +1,644 @@
+{% extends "base.html" %}
+{% block title %}Асуудлын дэлгэрэнгүй{% endblock %}
+{% block main_class %}main--wide{% endblock %}
+{% block content %}
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;800;900&display=swap" rel="stylesheet">
+
+<style>
+    :root {
+        --font: 'Montserrat',system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
+        --ink: #0f172a;
+        --muted: #6b7280;
+        --border: #dde3ea;
+        --g: #16a34a;
+        --g-weak: #ecfdf5;
+        --b: #2563eb;
+        --b-weak: #eff6ff;
+        --a: #f97316;
+        --a-weak: #fff7ed;
+        --r: #ef4444;
+        --r-weak: #fff1f2;
+        --shadow: 0 10px 28px rgba(2,6,23,.06);
+        --primary: #0b5f57;
+    }
+
+    * {
+        font-family: var(--font) !important;
+        box-sizing: border-box;
+    }
+
+    .page {
+        max-width: 1060px;
+        margin: 0 auto;
+        padding: 10px 0 28px
+    }
+
+    .h1 {
+        font-weight: 900;
+        font-size: 28px;
+        margin: 4px 0 14px;
+        color: var(--ink);
+    }
+
+    .sec {
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: var(--shadow);
+        margin: 12px 0;
+        background: #fff;
+    }
+
+        .sec > header {
+            padding: 10px 14px;
+            font-weight: 900;
+            color: #fff;
+            font-size: 13px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .sec .body {
+            padding: 12px 14px;
+            background: #fff;
+        }
+
+    .sec--g > header {
+        background: linear-gradient(90deg,#16a34a,#22c55e)
+    }
+
+    .sec--g .body {
+        background: var(--g-weak)
+    }
+
+    .sec--b > header {
+        background: #2563eb
+    }
+
+    .sec--b .body {
+        background: var(--b-weak)
+    }
+
+    .sec--a > header {
+        background: #f97316
+    }
+
+    .sec--a .body {
+        background: var(--a-weak)
+    }
+
+    .sec--r > header {
+        background: #ef4444
+    }
+
+    .sec--r .body {
+        background: var(--r-weak)
+    }
+
+    .grid {
+        display: grid;
+        gap: 10px
+    }
+
+    .g3 {
+        grid-template-columns: repeat(3,1fr)
+    }
+
+    @media(max-width:980px) {
+        .g3 {
+            grid-template-columns: repeat(2,1fr)
+        }
+    }
+
+    @media(max-width:720px) {
+        .g3 {
+            grid-template-columns: 1fr
+        }
+    }
+
+    .full {
+        grid-column: 1/-1
+    }
+
+    .field {
+        display: flex;
+        flex-direction: column;
+        gap: 6px
+    }
+
+    label {
+        font-weight: 900;
+        font-size: 13px;
+        color: var(--ink)
+    }
+
+    .help {
+        font-size: 12px;
+        color: var(--muted);
+        margin-top: 2px
+    }
+
+    .ro {
+        width: 100%;
+        border: 1px solid #d7dee7;
+        border-radius: 10px;
+        padding: 9px 11px;
+        background: #fff;
+        color: var(--ink);
+        font-size: 13px;
+        font-weight: 800;
+        min-height: 38px;
+        display: flex;
+        align-items: center;
+        white-space: pre-wrap;
+        word-break: break-word;
+        overflow-wrap: anywhere;
+    }
+
+        .ro.textarea {
+            align-items: flex-start;
+            line-height: 1.45;
+            min-height: 78px;
+        }
+
+        .ro.scroll {
+            max-height: 220px;
+            overflow: auto;
+        }
+
+        .ro.big {
+            min-height: 88px
+        }
+
+        .ro.mid {
+            min-height: 82px
+        }
+
+    .hr {
+        height: 1px;
+        background: rgba(148,163,184,.35);
+        margin: 8px 0
+    }
+
+    .actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 10px;
+        margin-top: 10px;
+        flex-wrap: wrap
+    }
+
+    .btnx {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 10px 18px;
+        border-radius: 999px;
+        font-weight: 900;
+        text-decoration: none;
+        border: 1px solid var(--border);
+        background: #fff;
+        color: var(--ink);
+    }
+
+        .btnx:hover {
+            background: #f8fafc
+        }
+
+        .btnx.primary {
+            background: var(--primary);
+            border-color: var(--primary);
+            color: #fff;
+        }
+
+            .btnx.primary:hover {
+                filter: brightness(.95)
+            }
+
+    .tiles {
+        display: grid;
+        grid-template-columns: repeat(3,1fr);
+        gap: 10px;
+        margin-top: 10px
+    }
+
+    @media(max-width:720px) {
+        .tiles {
+            grid-template-columns: 1fr
+        }
+    }
+
+    .tile {
+        border-radius: 12px;
+        padding: 14px;
+        text-align: center;
+        color: #fff;
+        background: #0a69c9
+    }
+
+        .tile .value {
+            font-size: 16px;
+            font-weight: 900;
+            margin-top: 4px
+        }
+
+        .tile.level.low {
+            background: #00b050
+        }
+
+        .tile.level.med {
+            background: #ffc000;
+            color: #111
+        }
+
+        .tile.level.high {
+            background: #ee0000
+        }
+
+    .ctrl-card {
+        grid-column: 1/-1;
+        background: #fff;
+        border: 1px solid rgba(203,213,225,.95);
+        border-radius: 16px;
+        padding: 14px 16px;
+        box-shadow: 0 10px 22px rgba(2,6,23,.06);
+        display: flex;
+        gap: 14px;
+        align-items: center;
+        justify-content: space-between;
+        margin-top: 6px;
+    }
+
+    .ctrl-left {
+        display: flex;
+        flex-direction: column;
+        gap: 4px
+    }
+
+    .ctrl-title {
+        font-weight: 900;
+        color: #0f172a;
+        font-size: 16px;
+        letter-spacing: .2px
+    }
+
+    .ctrl-sub {
+        font-size: 12px;
+        color: #64748b
+    }
+
+    .ctrl-right {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-end;
+        gap: 8px;
+        min-width: 220px
+    }
+
+    .ctrl-value {
+        font-size: 28px;
+        font-weight: 900;
+        line-height: 1;
+        color: #0f172a
+    }
+
+    .ctrl-pill {
+        font-size: 12px;
+        font-weight: 900;
+        padding: 6px 10px;
+        border-radius: 999px;
+        background: #f1f5f9;
+        color: #0f172a
+    }
+
+    .ctrl-bar {
+        width: 100%;
+        height: 10px;
+        border-radius: 999px;
+        background: #e5e7eb;
+        overflow: hidden
+    }
+
+        .ctrl-bar > div {
+            height: 100%;
+            width: 0%;
+            border-radius: 999px
+        }
+
+    .ctrl-ok {
+        background: #16a34a !important
+    }
+
+    .ctrl-mid {
+        background: #f59e0b !important
+    }
+
+    .ctrl-bad {
+        background: #ef4444 !important
+    }
+
+    @media(max-width:720px) {
+        .ctrl-card {
+            flex-direction: column;
+            align-items: flex-start
+        }
+
+        .ctrl-right {
+            align-items: flex-start;
+            width: 100%;
+            min-width: unset
+        }
+
+        .ctrl-value {
+            font-size: 26px
+        }
+    }
+
+    .files {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-top: 6px
+    }
+
+    .fchip {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 6px 10px;
+        border-radius: 999px;
+        border: 1px solid rgba(148,163,184,.55);
+        background: #fff;
+        font-weight: 900;
+        font-size: 12px;
+        color: #0f172a;
+    }
+
+        .fchip a {
+            color: #2563eb;
+            text-decoration: none
+        }
+
+            .fchip a:hover {
+                text-decoration: underline
+            }
+</style>
+
+{% set issue_text_view = (issue.issue or issue.detail_issue) %}
+{% set rec_text_view = (issue.recommendation or issue.issue_text) %}
+
+<div class="page">
+    <div class="h1">Асуудлын дэлгэрэнгүй #{{ issue.id }}</div>
+
+    <!-- I -->
+    <section class="sec sec--g">
+        <header><span>I. Асуудлын дэлгэрэнгүй</span></header>
+
+        <div class="body grid">
+            <div class="field full">
+                <label>Асуудал*</label>
+                <div class="ro textarea big scroll">{{ issue_text_view or '—' }}</div>
+            </div>
+
+            <div class="grid g3 full">
+                <div class="field">
+                    <label>Нөхцөл байдал</label>
+                    <div class="ro textarea mid scroll">{{ issue.detail_context or '—' }}</div>
+                </div>
+                <div class="field">
+                    <label>Шалгуур*</label>
+                    <div class="ro textarea mid scroll">{{ issue.detail_criteria or '—' }}</div>
+                </div>
+                <div class="field">
+                    <label>Шалтгаан</label>
+                    <div class="ro textarea mid scroll">{{ issue.detail_cause or '—' }}</div>
+                </div>
+            </div>
+
+            <div class="grid g3 full">
+                <div class="field">
+                    <label>Үр нөлөө / үр дагавар*</label>
+                    <div class="ro textarea mid scroll">{{ issue.detail_impact or '—' }}</div>
+                </div>
+                <div class="field">
+                    <label>Аудитын зөвлөмж*</label>
+                    <div class="ro textarea mid scroll">{{ rec_text_view or '—' }}</div>
+                </div>
+                <div class="field">
+                    <label>Аудитын үнэ цэн</label>
+                    <div class="ro textarea mid scroll">{{ issue.recommendation_number or '—' }}</div>
+                </div>
+            </div>
+
+            <div class="field full">
+                <label>Хариу тайлбар</label>
+                <div class="ro textarea big scroll">{{ issue.reply_comment or '—' }}</div>
+            </div>
+
+            <div class="hr full"></div>
+
+            <div class="grid g3 full">
+                <div class="field">
+                    <label>Зөвлөмжийг хэрэгжүүлэх эцсийн хугацаа*</label>
+                    <div class="ro">{{ issue.implement_due_date.strftime('%Y-%m-%d') if issue.implement_due_date else '—' }}</div>
+                </div>
+
+                <div class="field">
+                    <label>Материаллаг түвшин*</label>
+                    <div class="ro">{{ issue.materiality or '—' }}</div>
+                </div>
+
+                <div class="field">
+                    <label>Тайлангийн нэр</label>
+                    <div class="ro">{{ issue.report_name or '—' }}</div>
+                </div>
+            </div>
+
+            <div class="grid g3 full">
+                <div class="field">
+                    <label>Компанийн нэр*</label>
+                    <div class="ro">{{ issue.company_name or '—' }}</div>
+                </div>
+
+                <div class="field">
+                    <label>Эрсдэл тодорхойлсон аудитор*</label>
+                    <div class="ro">{{ issue.auditor_name or '—' }}</div>
+                </div>
+
+                <div class="field">
+                    <label>Асуудал бүртгэсэн огноо*</label>
+                    <div class="ro">{{ issue.identified_date.strftime('%Y-%m-%d') if issue.identified_date else '—' }}</div>
+                </div>
+            </div>
+
+            <div class="grid g3 full">
+                <div class="field">
+                    <label>Мөнгөн хохирол учруулсан эсэх*</label>
+                    <div class="ro">{{ issue.has_actual_loss or '—' }}</div>
+                </div>
+
+                <div class="field">
+                    <label>Мөнгөн дүн</label>
+                    <div class="ro">{{ issue.money_amount or '—' }}</div>
+                </div>
+
+                <div class="field">
+                    <label>Нотлох баримт</label>
+                    <div class="files">
+                        {% if issue.evidence_file %}
+                        {% for f in issue.evidence_file.split(';') %}
+                        {% set ff = (f or '').strip() %}
+                        {% if ff %}
+                        <span class="fchip">
+                            <a href="{{ url_for('uploaded_file', filename=ff) }}" target="_blank">{{ ff }}</a>
+                        </span>
+                        {% endif %}
+                        {% endfor %}
+                        {% else %}
+                        <div class="help">Файл оруулаагүй байна.</div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <!-- II -->
+    <section class="sec sec--b">
+        <header>II. Эрсдэл тодорхойлох</header>
+        <div class="body grid g3">
+            <div class="field"><label>Үүссэн эсвэл үүсэх магадлалтай эрсдэл*</label><div class="ro">{{ issue.risk_event_kind or '—' }}</div></div>
+            <div class="field"><label>Эрсдэл үүссэн хүчин зүйл*</label><div class="ro">{{ issue.risk_factor or '—' }}</div></div>
+            <div class="field"><label>Эрсдэлийн ангилал*</label><div class="ro">{{ issue.risk_classification or '—' }}</div></div>
+            <div class="field"><label>Хамааралтай эрсдэл</label><div class="ro">{{ issue.sub_risk_classification or '—' }}</div></div>
+            <div class="field"><label>Эрсдэл хариуцагч</label><div class="ro">{{ issue.risk_owner or '—' }}</div></div>
+            <div class="field"><label>Эрсдэлийн категори</label><div class="ro">{{ issue.risk_category or '—' }}</div></div>
+        </div>
+    </section>
+
+    <!-- III -->
+    <section class="sec sec--a">
+        <header>III. Хяналтын тогтолцоо</header>
+        <div class="body grid">
+            <div class="field full">
+                <label>Журам, дүрэм, хяналт</label>
+                <div class="ro textarea big scroll">{{ issue.controls_text or '—' }}</div>
+            </div>
+
+            <div class="grid g3 full">
+                <div class="field"><label>Эрсдэл бууруулахаар загварчлагдсан эсэх*</label><div class="ro">{{ issue.ctl_design or '—' }}</div></div>
+                <div class="field"><label>Журам, зохицуулалт хэрэгждэг эсэх*</label><div class="ro">{{ issue.ctl_operates or '—' }}</div></div>
+                <div class="field"><label>Ажилтнуудын мэдлэг ойлголт*</label><div class="ro">{{ issue.ctl_awareness or '—' }}</div></div>
+            </div>
+
+            <div class="ctrl-card" id="ctrlCard">
+                <div class="ctrl-left">
+                    <div class="ctrl-title">Хяналтын үнэлгээ</div>
+                    <div class="ctrl-sub">submit дээр тооцоолсон хувь</div>
+                </div>
+                <div class="ctrl-right">
+                    <div class="ctrl-value" id="ctrlValue">—</div>
+                    <div class="ctrl-pill" id="ctrlPill">Тодорхойгүй</div>
+                    <div class="ctrl-bar"><div id="ctrlBar"></div></div>
+                </div>
+            </div>
+
+            <input type="hidden" id="control_pct_saved" value="{{ issue.control_pct or '' }}">
+        </div>
+    </section>
+
+    <!-- IV -->
+    <section class="sec sec--r">
+        <header>IV. Эрсдэлийн үнэлгээ</header>
+
+        <div class="body grid g3">
+            <div class="field"><label>Санхүүгийн нөлөөлөл</label><div class="ro">{{ issue.r5_financial or '—' }}</div></div>
+            <div class="field"><label>Хууль, дүрэм, журмын зохицуулалт</label><div class="ro">{{ issue.r5_regulatory or '—' }}</div></div>
+            <div class="field"><label>Харилцагч, үйлчилгээ үзүүлэгчид нөлөөлөх нөлөөлөл</label><div class="ro">{{ issue.r5_stakeholder or '—' }}</div></div>
+            <div class="field"><label>Төлөвлөгөө, гүйцэтгэлд нөлөөлөх нөлөөлөл</label><div class="ro">{{ issue.r5_operation or '—' }}</div></div>
+            <div class="field"><label>Эрүүл мэнд, амь насны аюулгүй байдалд нөлөөлөх нөлөөлөл</label><div class="ro">{{ issue.r5_health or '—' }}</div></div>
+            <div class="field"><label>Эрсдэл/боломжийн магадлал</label><div class="ro">{{ issue.r5_probability or '—' }}</div></div>
+        </div>
+
+        <div class="tiles">
+            <div class="tile"><div>Үнэлгээний дүн</div><div id="r5_total" class="value">—</div></div>
+            <div id="tile_level" class="tile level"><div>Эрсдэлийн түвшин</div><div id="r5_level_badge" class="value">—</div></div>
+            <div class="tile"><div>Арга хэмжээний эрэмбэ</div><div id="r5_rank" class="value">—</div></div>
+        </div>
+
+        <input type="hidden" id="residual_score_saved" value="{{ issue.residual_score or '' }}">
+        <input type="hidden" id="residual_level_saved" value="{{ issue.residual_level or '' }}">
+        <input type="hidden" id="action_rank_saved" value="{{ issue.action_rank or '' }}">
+    </section>
+
+    <div class="actions">
+        <a class="btnx" href="{{ url_for('issues') }}">Буцах</a>
+        {% if current_user.is_authenticated and current_user.is_admin %}
+        <a class="btnx primary" href="{{ url_for('edit_issue', issue_id=issue.id) }}">Засах</a>
+        {% endif %}
+    </div>
+</div>
+
+<script>
+    function setCtrlVisual(pct) {
+        const val = document.getElementById('ctrlValue');
+        const pill = document.getElementById('ctrlPill');
+        const bar = document.getElementById('ctrlBar');
+        bar.classList.remove('ctrl-ok', 'ctrl-mid', 'ctrl-bad');
+
+        if (pct === null) {
+            val.textContent = '—';
+            pill.textContent = 'Тодорхойгүй';
+            bar.style.width = '0%';
+            return;
+        }
+
+        val.textContent = pct + '%';
+        bar.style.width = Math.max(0, Math.min(100, pct)) + '%';
+
+        if (pct >= 61) { bar.classList.add('ctrl-ok'); pill.textContent = 'Өндөр (61–100)'; }
+        else if (pct >= 49) { bar.classList.add('ctrl-mid'); pill.textContent = 'Дунд (49–60)'; }
+        else { bar.classList.add('ctrl-bad'); pill.textContent = 'Бага (0–48)'; }
+    }
+
+    function initControlPct() {
+        const raw = (document.getElementById('control_pct_saved')?.value || '').trim();
+        if (!raw) { setCtrlVisual(null); return; }
+        const n = parseInt(raw.replace('%', ''), 10);
+        if (isNaN(n)) setCtrlVisual(null);
+        else setCtrlVisual(n);
+    }
+
+    function initR5() {
+        const score = (document.getElementById('residual_score_saved')?.value || '').trim();
+        const level = (document.getElementById('residual_level_saved')?.value || '').trim();
+        const rank = (document.getElementById('action_rank_saved')?.value || '').trim();
+
+        const totalBox = document.getElementById('r5_total');
+        const levelBox = document.getElementById('r5_level_badge');
+        const rankBox = document.getElementById('r5_rank');
+        const tile = document.getElementById('tile_level');
+
+        tile?.classList.remove('low', 'med', 'high');
+
+        totalBox.textContent = score ? (score + ' оноо') : '—';
+        levelBox.textContent = level || '—';
+        rankBox.textContent = rank || '—';
+
+        if (level === 'Өндөр') tile?.classList.add('high');
+        else if (level === 'Дунд') tile?.classList.add('med');
+        else if (level === 'Бага') tile?.classList.add('low');
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        initControlPct();
+        initR5();
+    });
+</script>
+
+{% endblock %}

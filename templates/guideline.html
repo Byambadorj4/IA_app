@@ -1,0 +1,386 @@
+{% extends "base.html" %}
+{% block title %}Удирдамж үүсгэх{% endblock %}
+{% block main_class %}main--wide{% endblock %}
+{% block content %}
+
+<style>
+    :root {
+        --brand: #0b5f57;
+        --brand2: #0a534c;
+        --ink: #0f172a;
+        --muted: #64748b;
+        --border: #e5e7eb;
+        --card: #ffffff;
+        --bg: #f6f8fb;
+        --shadow: 0 18px 45px rgba(2,6,23,.10);
+        --radius: 18px;
+        --ring: 0 0 0 4px rgba(11,95,87,.18);
+    }
+
+    .wrap {
+        max-width: 1100px;
+        margin: 0 auto;
+        padding: 6px 0 14px;
+    }
+
+    .hero {
+        display: flex;
+        align-items: flex-end;
+        justify-content: space-between;
+        gap: 12px;
+        flex-wrap: wrap;
+        margin: 6px 0 14px;
+    }
+
+    .h1 {
+        margin: 0;
+        font-size: 20px;
+        color: var(--ink);
+        font-weight: 600;
+        letter-spacing: .2px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .sub {
+        margin-top: 6px;
+        font-size: 12.5px;
+        color: var(--muted);
+        line-height: 1.45;
+        font-weight: 500;
+    }
+
+    .card {
+        background: radial-gradient(120% 120% at 10% 10%, rgba(11,95,87,.10), transparent 55%), radial-gradient(120% 120% at 95% 0%, rgba(14,122,110,.08), transparent 45%), linear-gradient(180deg, rgba(255,255,255,.98), rgba(255,255,255,.92));
+        border: 1px solid rgba(15,23,42,.10);
+        border-radius: var(--radius);
+        box-shadow: var(--shadow);
+        padding: 14px;
+        backdrop-filter: blur(10px);
+    }
+
+    .section {
+        margin-top: 12px;
+        padding-top: 12px;
+        border-top: 1px dashed rgba(15,23,42,.12);
+    }
+
+    .sec-title {
+        font-size: 13px;
+        font-weight: 600;
+        color: var(--ink);
+        margin: 0 0 10px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .grid {
+        display: grid;
+        gap: 12px;
+    }
+
+    .g2 {
+        grid-template-columns: repeat(2,minmax(0,1fr));
+    }
+
+    .g3 {
+        grid-template-columns: repeat(3,minmax(0,1fr));
+    }
+
+    @media(max-width:900px) {
+        .g2, .g3 {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    label {
+        display: block;
+        font-size: 12.5px;
+        color: var(--ink);
+        margin: 0 0 6px;
+        font-weight: 600;
+    }
+
+    .req {
+        color: #ef4444;
+        font-weight: 700;
+        margin-left: 4px;
+    }
+
+    input, select, textarea {
+        width: 100%;
+        height: 40px;
+        border: 1px solid rgba(15,23,42,.14);
+        border-radius: 12px;
+        padding: 8px 10px;
+        background: rgba(255,255,255,.96);
+        font-size: 13px;
+        outline: none;
+        color: var(--ink);
+        font-weight: 500;
+        transition: box-shadow .15s ease, border-color .15s ease, transform .06s ease;
+    }
+
+    textarea {
+        height: auto;
+        min-height: 96px;
+        resize: vertical;
+        line-height: 1.45;
+    }
+
+        input:focus, select:focus, textarea:focus {
+            border-color: rgba(11,95,87,.55);
+            box-shadow: var(--ring);
+        }
+
+        input::placeholder, textarea::placeholder {
+            color: rgba(100,116,139,.85);
+        }
+
+    .hint {
+        font-size: 12px;
+        color: var(--muted);
+        margin-top: 6px;
+        font-weight: 500;
+    }
+
+    .checks {
+        border: 1px solid rgba(15,23,42,.12);
+        border-radius: 16px;
+        padding: 10px;
+        background: rgba(255,255,255,.85);
+        max-height: 260px;
+        overflow: auto;
+        box-shadow: inset 0 1px 0 rgba(255,255,255,.8);
+    }
+
+    .check-row {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+        padding: 8px 8px;
+        border-radius: 12px;
+        border: 1px solid transparent;
+        transition: background .12s ease, border-color .12s ease;
+    }
+
+        .check-row + .check-row {
+            margin-top: 6px;
+        }
+
+        .check-row:hover {
+            background: rgba(11,95,87,.06);
+            border-color: rgba(11,95,87,.10);
+        }
+
+        .check-row input {
+            width: 18px;
+            height: 18px;
+            accent-color: var(--brand);
+        }
+
+        .check-row div {
+            font-size: 13px;
+            color: var(--ink);
+            font-weight: 500;
+            line-height: 1.25;
+        }
+
+    .actions {
+        display: flex;
+        gap: 10px;
+        justify-content: flex-end;
+        flex-wrap: wrap;
+        margin-top: 14px;
+        padding-top: 12px;
+        border-top: 1px dashed rgba(15,23,42,.12);
+    }
+
+    .btn {
+        height: 42px;
+        padding: 0 16px;
+        border-radius: 999px;
+        border: 1px solid rgba(11,95,87,.35);
+        background: linear-gradient(135deg, rgba(11,95,87,.98), rgba(10,83,76,.92));
+        color: #fff;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 13px;
+        font-weight: 600;
+        cursor: pointer;
+        box-shadow: 0 14px 28px rgba(11,95,87,.18);
+        transition: transform .06s ease, box-shadow .15s ease, filter .15s ease;
+    }
+
+        .btn:hover {
+            box-shadow: 0 18px 34px rgba(11,95,87,.22);
+            filter: saturate(1.05);
+        }
+
+        .btn:active {
+            transform: translateY(1px);
+        }
+
+    .btn-ghost {
+        height: 42px;
+        padding: 0 16px;
+        border-radius: 999px;
+        border: 1px solid rgba(15,23,42,.14);
+        background: rgba(255,255,255,.92);
+        color: var(--ink);
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 13px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: background .12s ease, transform .06s ease, box-shadow .15s ease;
+    }
+
+        .btn-ghost:hover {
+            background: rgba(241,245,249,.95);
+            box-shadow: 0 10px 20px rgba(2,6,23,.06);
+        }
+
+        .btn-ghost:active {
+            transform: translateY(1px);
+        }
+
+    .mini-note {
+        font-size: 12px;
+        color: var(--muted);
+        font-weight: 500;
+        margin-top: 8px;
+    }
+</style>
+
+<div class="wrap">
+    <div class="hero">
+        <div>
+            <div class="h1">📌 Удирдамж үүсгэх</div>
+            <div class="sub">
+                Компанийн мэдээлэл, аудитын төрөл, багийн бүрэлдэхүүн, хугацааг нэг дор цэгцтэй бүртгэнэ.
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <form method="POST">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+            <div class="sec-title">🧾 Үндсэн мэдээлэл</div>
+
+            <div class="grid g2">
+                <div>
+                    <label>Компанийн нэр <span class="req">*</span></label>
+                    <select name="company_name" required>
+                        <option value="">— Сонгоно уу —</option>
+                        {% for c in COMPANIES %}
+                        <option value="{{ c }}">{{ c }}</option>
+                        {% endfor %}
+                    </select>
+                    <div class="hint">Аудит хамрагдах компанийг сонгоно.</div>
+                </div>
+
+                <div>
+                    <label>Аудитын төрөл <span class="req">*</span></label>
+                    <select name="audit_type" required>
+                        <option value="">— Сонгоно уу —</option>
+                        <option value="Төлөвлөгөөт аудит">Төлөвлөгөөт аудит</option>
+                        <option value="Төлөвлөгөөт бус аудит">Төлөвлөгөөт бус аудит</option>
+                    </select>
+                    <div class="hint">Төлөвлөгөөт / төлөвлөгөөт бус.</div>
+                </div>
+
+                <div>
+                    <label>Дэд төрөл <span class="req">*</span></label>
+                    <select name="audit_subtype" required>
+                        <option value="">— Сонгоно уу —</option>
+                        <option value="Сэдэвчилсэн аудит">Сэдэвчилсэн аудит</option>
+                        <option value="Эргэн хяналтын аудит">Эргэн хяналтын аудит</option>
+                    </select>
+                    <div class="hint">Аудитын дэд төрлийг сонгоно.</div>
+                </div>
+
+                <div>
+                    <label>Аудитын багын ахлагч <span class="req">*</span></label>
+                    <select name="team_leader" required>
+                        <option value="">— Сонгоно уу —</option>
+                        {% for a in AUDITORS %}
+                        <option value="{{ a }}">{{ a }}</option>
+                        {% endfor %}
+                    </select>
+                    <div class="hint">Багийн ахлагч аудиторыг сонгоно.</div>
+                </div>
+            </div>
+
+            <div class="section">
+                <div class="sec-title">👥 Багийн гишүүд</div>
+
+                <label>Аудитын багын гишүүд</label>
+                <div class="checks">
+                    {% for a in AUDITORS %}
+                    <div class="check-row">
+                        <input type="checkbox" name="team_members" value="{{ a }}">
+                        <div>{{ a }}</div>
+                    </div>
+                    {% endfor %}
+                </div>
+                <div class="mini-note">Жич: Ахлагчийг давхар “гишүүд” дээр сонгох шаардлагагүй.</div>
+            </div>
+
+            <div class="section">
+                <div class="sec-title">🗓️ Хугацаа</div>
+
+                <div class="grid g2">
+                    <div>
+                        <label>Аудитын хамрах хугацаа – эхлэх <span class="req">*</span></label>
+                        <input type="date" name="scope_start" required>
+                    </div>
+                    <div>
+                        <label>Аудитын хамрах хугацаа – дуусах <span class="req">*</span></label>
+                        <input type="date" name="scope_end" required>
+                    </div>
+
+                    <div>
+                        <label>Аудит хэрэгжүүлэх хугацаа – эхлэх <span class="req">*</span></label>
+                        <input type="date" name="exec_start" required>
+                    </div>
+                    <div>
+                        <label>Аудит хэрэгжүүлэх хугацаа – дуусах <span class="req">*</span></label>
+                        <input type="date" name="exec_end" required>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <div class="sec-title">⏳ Сунгалт (хэрэв байгаа бол)</div>
+
+                <div class="grid g2">
+                    <div>
+                        <label>Аудитын хугацаа сунгасан бол дуусах</label>
+                        <input type="date" name="extended_end">
+                        <div class="hint">Сунгалт байхгүй бол хоосон үлдээнэ.</div>
+                    </div>
+                    <div>
+                        <label>Тайлбар</label>
+                        <textarea name="extension_note" placeholder="Сунгалтын үндэслэл, шалтгаан, шийдвэрийн мэдээлэл..."></textarea>
+                    </div>
+                </div>
+            </div>
+
+            <div class="actions">
+                <a class="btn-ghost" href="{{ url_for('guideline_list') }}">📋 Нийт удирдамж</a>
+                <a class="btn-ghost" href="{{ url_for('export_guidelines') }}">⬇️ Excel татах</a>
+                <button class="btn" type="submit">✅ Удирдамж үүсгэх</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+{% endblock %}

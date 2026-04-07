@@ -1,0 +1,317 @@
+{% extends "base.html" %}
+{% block title %}Лог бүртгэл{% endblock %}
+{% block main_class %}main--wide{% endblock %}
+
+{% block content %}
+<style>
+    :root {
+        --ink: #0f172a;
+        --muted: #64748b;
+        --line: #e5e7eb;
+        --line-soft: #eef2f7;
+        --panel: #ffffff;
+        --panel-soft: #f8fafc;
+        --brand: #0b5f57;
+        --brand-dark: #084c46;
+        --shadow: 0 12px 28px rgba(2,6,23,.06);
+        --radius: 18px;
+    }
+
+    .page {
+        max-width: 1480px;
+        margin: 0 auto;
+        padding: 18px 10px 28px;
+    }
+
+    .head {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 14px;
+        flex-wrap: wrap;
+        margin-bottom: 14px;
+    }
+
+    .title-wrap {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+    }
+
+    .title {
+        font-size: 24px;
+        line-height: 1.2;
+        margin: 0;
+        color: var(--ink);
+        font-weight: 800;
+        letter-spacing: -.02em;
+    }
+
+    .sub {
+        font-size: 13px;
+        color: var(--muted);
+        margin: 0;
+        line-height: 1.5;
+    }
+
+    .actions {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        flex-wrap: wrap;
+    }
+
+    .count-badge {
+        height: 42px;
+        padding: 0 14px;
+        border-radius: 999px;
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        color: #334155;
+        display: inline-flex;
+        align-items: center;
+        font-size: 13px;
+        font-weight: 600;
+        white-space: nowrap;
+    }
+
+    .btn-ghost {
+        height: 42px;
+        padding: 0 16px;
+        border-radius: 999px;
+        border: 1px solid #d7dee7;
+        background: #fff;
+        color: var(--ink);
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 13px;
+        font-weight: 700;
+        transition: .18s ease;
+        white-space: nowrap;
+        box-shadow: 0 1px 2px rgba(15,23,42,.03);
+    }
+
+        .btn-ghost:hover {
+            background: #f8fafc;
+            border-color: #cbd5e1;
+            transform: translateY(-1px);
+        }
+
+    .wrap {
+        background: var(--panel);
+        border: 1px solid var(--line);
+        border-radius: var(--radius);
+        box-shadow: var(--shadow);
+        overflow: hidden;
+    }
+
+    .table-scroll {
+        width: 100%;
+        overflow-x: auto;
+        overflow-y: auto;
+        max-height: calc(100vh - 240px);
+    }
+
+        .table-scroll::-webkit-scrollbar {
+            width: 10px;
+            height: 10px;
+        }
+
+        .table-scroll::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 999px;
+        }
+
+        .table-scroll::-webkit-scrollbar-track {
+            background: #f8fafc;
+        }
+
+    table {
+        width: 100%;
+        min-width: 980px;
+        border-collapse: separate;
+        border-spacing: 0;
+        table-layout: fixed;
+    }
+
+    thead th {
+        position: sticky;
+        top: 0;
+        z-index: 2;
+        background: linear-gradient(180deg, #fbfdff 0%, #f8fafc 100%);
+        color: var(--ink);
+        font-size: 12.5px;
+        font-weight: 800;
+        letter-spacing: .01em;
+        text-align: center;
+        padding: 14px 12px;
+        border-bottom: 1px solid var(--line);
+        white-space: nowrap;
+    }
+
+    tbody td {
+        padding: 13px 12px;
+        border-bottom: 1px solid var(--line-soft);
+        font-size: 13px;
+        color: var(--ink);
+        vertical-align: top;
+        background: #fff;
+    }
+
+    tbody tr:nth-child(even) td {
+        background: #fcfdff;
+    }
+
+    tbody tr:hover td {
+        background: #f8fbff;
+    }
+
+    tbody tr:last-child td {
+        border-bottom: 0;
+    }
+
+    .col-time {
+        width: 200px;
+    }
+
+    .col-user {
+        width: 200px;
+    }
+
+    .col-action {
+        width: auto;
+    }
+
+    .time-cell {
+        text-align: center;
+        font-size: 12px;
+        color: #475569;
+        line-height: 1.45;
+        white-space: nowrap;
+        font-variant-numeric: tabular-nums;
+    }
+
+    .user-cell {
+        text-align: center;
+        color: #0f172a;
+        font-weight: 600;
+        word-break: break-word;
+        overflow-wrap: anywhere;
+    }
+
+    .msg {
+        white-space: normal;
+        word-break: break-word;
+        overflow-wrap: anywhere;
+        line-height: 1.55;
+        color: #0f172a;
+    }
+
+        .msg code {
+            background: #f1f5f9;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 2px 6px;
+            font-size: 12px;
+            color: #334155;
+        }
+
+    .empty {
+        padding: 26px 18px;
+        text-align: center;
+        color: var(--muted);
+        font-size: 13px;
+        background: #fff;
+    }
+
+    @media (max-width: 992px) {
+        .page {
+            padding: 14px 4px 22px;
+        }
+
+        .title {
+            font-size: 21px;
+        }
+
+        .sub {
+            font-size: 12px;
+        }
+
+        .count-badge,
+        .btn-ghost {
+            height: 40px;
+        }
+    }
+
+    @media (max-width: 640px) {
+        .head {
+            align-items: stretch;
+        }
+
+        .actions {
+            width: 100%;
+        }
+
+        .count-badge,
+        .btn-ghost {
+            width: 100%;
+            justify-content: center;
+        }
+
+        .table-scroll {
+            max-height: calc(100vh - 260px);
+        }
+    }
+</style>
+
+<div class="page">
+    <div class="head">
+        <div class="title-wrap">
+            <h1 class="title">Лог бүртгэл</h1>
+            <p class="sub">Системийн үйлдлийн бүртгэлийн сүүлийн мэдээллүүд</p>
+        </div>
+
+        <div class="actions">
+            <div class="count-badge">Нийт харагдаж буй мөр: {{ logs|length }}</div>
+            <a class="btn-ghost" href="{{ url_for('export_logs') }}">Excel татах</a>
+        </div>
+    </div>
+
+    <div class="wrap">
+        <div class="table-scroll">
+            <table>
+                <thead>
+                    <tr>
+                        <th class="col-time">Цаг</th>
+                        <th class="col-user">Хэрэглэгч</th>
+                        <th class="col-action">Үйлдэл</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% if logs %}
+                    {% for r in logs %}
+                    <tr>
+                        <td class="time-cell">
+                            {{ r.timestamp.strftime('%Y-%m-%d %H:%M:%S') if r.timestamp else '—' }}
+                        </td>
+                        <td class="user-cell">
+                            {{ r.user or '—' }}
+                        </td>
+                        <td>
+                            <div class="msg">{{ r.action or '—' }}</div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                    {% else %}
+                    <tr>
+                        <td colspan="3" class="empty">Лог бүртгэл байхгүй байна.</td>
+                    </tr>
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

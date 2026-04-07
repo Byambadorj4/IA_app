@@ -1,0 +1,394 @@
+{% extends "base.html" %}
+{% block title %}Эргэн хяналт хийх{% endblock %}
+{% block main_class %}main--wide{% endblock %}
+{% block content %}
+
+<style>
+    .page-topbar {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 14px;
+        flex-wrap: wrap;
+        margin: 6px 0 14px;
+    }
+
+    .page-title {
+        font-weight: 400 !important;
+        font-size: 24px;
+        margin: 0;
+    }
+
+    .filters {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        flex-wrap: wrap;
+        justify-content: flex-end;
+    }
+
+        .filters select,
+        .filters button,
+        .filters a {
+            height: 38px;
+            border-radius: 999px;
+            font-size: 13px;
+            text-decoration: none;
+            box-sizing: border-box;
+            font-weight: 400 !important;
+        }
+
+        .filters select {
+            min-width: 240px;
+            padding: 0 14px;
+            border: 1px solid #dbe3ea;
+            background: #fff;
+            color: #0f172a;
+            outline: none;
+        }
+
+        .filters button {
+            padding: 0 16px;
+            border: 1px solid #bfe9de;
+            background: #e8f7f3;
+            color: #075e55;
+            cursor: pointer;
+        }
+
+        .filters a {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0 16px;
+            border: 1px solid #e5e7eb;
+            background: #fff;
+            color: #475569;
+        }
+
+    .table-wrap {
+        width: 100%;
+        background: #fff;
+        border: 1px solid #e5e7eb;
+        border-radius: 16px;
+        box-shadow: 0 12px 28px rgba(2,6,23,.06);
+        overflow: auto;
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        min-width: 2500px;
+    }
+
+    th, td {
+        padding: 12px;
+        border-bottom: 1px solid #f1f5f9;
+        vertical-align: top;
+        font-weight: 400 !important;
+    }
+
+    th {
+        position: sticky;
+        top: 0;
+        background: #fafcff;
+        z-index: 1;
+        font-size: 12.5px;
+        white-space: nowrap;
+        color: #0f172a;
+    }
+
+    td {
+        font-size: 13px;
+        color: #0f172a;
+    }
+
+    .small {
+        font-size: 12px;
+        color: #64748b;
+        font-weight: 400 !important;
+    }
+
+    .nowrap {
+        white-space: nowrap;
+    }
+
+    th.col-issue, td.col-issue {
+        min-width: 720px;
+        width: 720px;
+    }
+
+    .issue-cell {
+        white-space: normal;
+        word-break: break-word;
+        overflow-wrap: anywhere;
+        line-height: 1.45;
+        font-size: 14px;
+        max-height: none;
+        overflow: visible;
+        font-weight: 400 !important;
+    }
+
+    .badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 5px 10px;
+        border-radius: 999px;
+        font-weight: 400 !important;
+        font-size: 12px;
+        border: 1px solid #e5e7eb;
+        background: #fff;
+        white-space: nowrap;
+    }
+
+        .badge.red {
+            background: #fff1f2;
+            border-color: #fecdd3;
+            color: #9f1239;
+        }
+
+        .badge.yellow {
+            background: #fffbeb;
+            border-color: #fde68a;
+            color: #92400e;
+        }
+
+        .badge.green {
+            background: #ecfdf5;
+            border-color: #bbf7d0;
+            color: #166534;
+        }
+
+        .badge.gray {
+            background: #f1f5f9;
+            border-color: #e2e8f0;
+            color: #334155;
+        }
+
+    .riskpair {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        flex-wrap: wrap;
+    }
+
+    .arrow {
+        color: #94a3b8;
+        font-weight: 400 !important;
+    }
+
+    .btnx {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        height: 36px;
+        padding: 0 14px;
+        border-radius: 999px;
+        font-weight: 400 !important;
+        text-decoration: none;
+        border: 1px solid #bfe9de;
+        background: #e8f7f3;
+        color: #075e55;
+    }
+
+        .btnx:hover,
+        .filters button:hover,
+        .filters a:hover {
+            filter: brightness(.97);
+        }
+
+    .empty-box {
+        padding: 24px;
+        text-align: center;
+        color: #64748b;
+        font-size: 14px;
+        font-weight: 400 !important;
+    }
+
+    @media (max-width: 900px) {
+        .page-topbar {
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+        .filters {
+            justify-content: flex-start;
+        }
+
+            .filters select {
+                min-width: 220px;
+            }
+    }
+</style>
+
+<div class="page-topbar">
+    <div class="page-title">Эргэн хяналт хийх</div>
+
+    <form class="filters" method="get" action="{{ url_for('followups') }}">
+        <select name="auditor">
+            <option value="">— Эрсдэл тодорхойлсон аудитор (бүгд) —</option>
+            {% for a in auditors %}
+            <option value="{{ a }}" {% if selected_auditor == a %}selected{% endif %}>{{ a }}</option>
+            {% endfor %}
+        </select>
+
+        <select name="company">
+            <option value="">— Компани (бүгд) —</option>
+            {% for c in companies %}
+            <option value="{{ c }}" {% if selected_company == c %}selected{% endif %}>{{ c }}</option>
+            {% endfor %}
+        </select>
+
+        <button type="submit">Шүүх</button>
+        <a href="{{ url_for('followups') }}">Цэвэрлэх</a>
+    </form>
+</div>
+
+<div class="table-wrap">
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Анх бүртгэсэн огноо</th>
+                <th>Компанийн нэр</th>
+                <th>Анх эрсдэл тодорхойлсон</th>
+                <th class="col-issue">Асуудал</th>
+                <th>Эрсдэлийн түвшин (анх → дараах)</th>
+                <th>Арга хэмжээний төрөл</th>
+                <th>Зөвлөмж хэрэгжүүлэх эцсийн хугацаа</th>
+                <th>Хугацааны төлөв</th>
+                <th>Эргэн хяналт хийсэн огноо</th>
+                <th>Эргэн хяналт хийсэн аудитор</th>
+                <th>Хэрэгжилтийн төлөв</th>
+                <th>Үйлдэл</th>
+            </tr>
+        </thead>
+
+        <tbody>
+            {% set today = today | default(None) %}
+
+            {% if issues %}
+            {% for i in issues %}
+            {% set fu = latest.get(i.id) %}
+            {% set due = i.implement_due_date %}
+
+            {% if due and today %}
+            {% if fu and fu.impl_percent and '100' in (fu.impl_percent|string) %}
+            {% set due_status = 'Хугацаандаа' %}
+            {% set due_badge = 'green' %}
+            {% elif due < today %}
+            {% set due_status = 'Хугацаа хэтэрсэн' %}
+            {% set due_badge = 'red' %}
+            {% elif due > today %}
+            {% set due_status = 'Хугацаа болоогүй' %}
+            {% set due_badge = 'gray' %}
+            {% else %}
+            {% set due_status = 'Хугацаандаа' %}
+            {% set due_badge = 'yellow' %}
+            {% endif %}
+            {% else %}
+            {% set due_status = '—' %}
+            {% set due_badge = 'gray' %}
+            {% endif %}
+
+            {% set init_lvl = i.residual_level %}
+            {% set after_lvl = (fu.residual_level if fu and fu.residual_level else None) %}
+            {% set action_type = (fu.action_type if fu and fu.action_type is defined and fu.action_type else None) %}
+
+            {% set progress = 0 %}
+            {% if fu %}
+            {% set has_after_risk = (after_lvl and after_lvl|string|trim != '') %}
+            {% set has_action = (action_type and action_type|string|trim != '') %}
+            {% set has_follow_date = (fu.created_at is defined and fu.created_at) %}
+            {% set has_auditor = (fu.auditor_name is defined and fu.auditor_name|string|trim != '') %}
+            {% set has_pct = (fu.impl_percent is defined and fu.impl_percent|string|trim != '') %}
+            {% set has_impl_text = (fu.implementation is defined and fu.implementation|string|trim != '') or
+            (fu.implementation_desc is defined and fu.implementation_desc|string|trim != '') %}
+            {% set is_complete = has_after_risk and has_action and has_follow_date and has_auditor and has_pct and has_impl_text %}
+
+            {% if is_complete %}
+            {% set progress = 100 %}
+            {% else %}
+            {% set progress = 50 %}
+            {% endif %}
+            {% endif %}
+
+            <tr>
+                <td class="nowrap small">#{{ i.id }}</td>
+
+                <td class="nowrap small">
+                    {{ i.identified_date.strftime('%Y-%m-%d') if i.identified_date else (i.created_at.strftime('%Y-%m-%d') if i.created_at else '—') }}
+                </td>
+
+                <td class="nowrap">{{ i.company_name or '—' }}</td>
+                <td class="nowrap small">{{ i.auditor_name or '—' }}</td>
+
+                <td class="col-issue">
+                    <div class="issue-cell">{{ i.issue or '—' }}</div>
+                </td>
+
+                <td class="nowrap">
+                    <span class="riskpair">
+                        {% if init_lvl == 'Өндөр' %}<span class="badge red">Өндөр</span>
+                        {% elif init_lvl == 'Дунд' %}<span class="badge yellow">Дунд</span>
+                        {% elif init_lvl == 'Бага' %}<span class="badge green">Бага</span>
+                        {% elif init_lvl %}<span class="badge gray">{{ init_lvl }}</span>
+                        {% else %}<span class="badge gray">—</span>{% endif %}
+
+                        <span class="arrow">→</span>
+
+                        {% if after_lvl == 'Өндөр' %}<span class="badge red">Өндөр</span>
+                        {% elif after_lvl == 'Дунд' %}<span class="badge yellow">Дунд</span>
+                        {% elif after_lvl == 'Бага' %}<span class="badge green">Бага</span>
+                        {% elif after_lvl %}<span class="badge gray">{{ after_lvl }}</span>
+                        {% else %}<span class="badge gray">—</span>{% endif %}
+                    </span>
+                </td>
+
+                <td class="nowrap small">
+                    {{ action_type if action_type else '—' }}
+                </td>
+
+                <td class="nowrap small">
+                    {{ due.strftime('%Y-%m-%d') if due else '—' }}
+                </td>
+
+                <td class="nowrap">
+                    <span class="badge {{ due_badge }}">{{ due_status }}</span>
+                </td>
+
+                <td class="nowrap small">
+                    {{ fu.created_at.strftime('%Y-%m-%d') if fu and fu.created_at else '—' }}
+                </td>
+
+                <td class="nowrap small">
+                    {{ fu.auditor_name if fu and fu.auditor_name else '—' }}
+                </td>
+
+                <td class="nowrap">
+                    {% if progress == 0 %}
+                    <span class="badge gray">Эргэн хяналт хийгдээгүй (0%)</span>
+                    {% elif progress == 50 %}
+                    <span class="badge yellow">50%</span>
+                    {% else %}
+                    <span class="badge green">100%</span>
+                    {% endif %}
+                </td>
+
+                <td class="nowrap">
+                    <a class="btnx" href="{{ url_for('followup_form', issue_id=i.id) }}">Эргэн хяналт</a>
+                </td>
+            </tr>
+            {% endfor %}
+            {% else %}
+            <tr>
+                <td colspan="13">
+                    <div class="empty-box">Илэрц олдсонгүй.</div>
+                </td>
+            </tr>
+            {% endif %}
+        </tbody>
+    </table>
+</div>
+
+{% endblock %}

@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+{% block title %}Засварын түүх{% endblock %}
+{% block main_class %}main--wide{% endblock %}
+{% block content %}
+
+<style>
+  :root{
+    --ink:#0f172a; --muted:#64748b; --border:#e5e7eb; --card:#fff;
+    --shadow:0 12px 28px rgba(2,6,23,.06); --radius:18px;
+  }
+  .wrap{ padding: 10px 18px 22px; }
+  .head{
+    background:var(--card); border:1px solid var(--border); border-radius:var(--radius);
+    box-shadow:var(--shadow); padding:14px 16px; display:flex; justify-content:space-between; gap:10px; flex-wrap:wrap;
+  }
+  .ttl{ font-size:18px; font-weight:900; color:var(--ink); margin:0; }
+  .sub{ margin-top:6px; font-size:12px; color:var(--muted); }
+  .btn{
+    height:36px; border-radius:999px; border:1px solid var(--border); background:#fff;
+    font-size:12px; font-weight:900; padding:0 14px; text-decoration:none; color:var(--ink);
+    display:inline-flex; align-items:center; justify-content:center;
+  }
+  .card{
+    margin-top:14px; background:var(--card); border:1px solid var(--border);
+    border-radius:var(--radius); box-shadow:var(--shadow); overflow:hidden;
+  }
+  table{ width:100%; border-collapse:separate; border-spacing:0; }
+  th,td{ padding:12px 12px; border-bottom:1px solid #f1f5f9; font-size:12px; color:var(--ink); vertical-align:top; }
+  th{ background:#fbfdff; font-weight:900; position:sticky; top:0; z-index:2; }
+  .muted{ color:var(--muted); }
+  .mono{ font-variant-numeric: tabular-nums; white-space:nowrap; }
+</style>
+
+<div class="wrap">
+  <div class="head">
+    <div>
+      <div class="ttl">🧾 Засварын түүх (ID: #{{ issue.id }})</div>
+      <div class="sub">
+        Компани: <b>{{ issue.company_name or '—' }}</b> · Аудитор: <b>{{ issue.auditor_name or '—' }}</b>
+      </div>
+    </div>
+    <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
+      <a class="btn" href="{{ url_for('issue_detail', issue_id=issue.id) }}">Дэлгэрэнгүй</a>
+      <a class="btn" href="{{ url_for('issues') }}">Буцах</a>
+    </div>
+  </div>
+
+  <div class="card">
+    <div style="max-height:65vh; overflow:auto;">
+      <table>
+        <thead>
+          <tr>
+            <th style="width:170px;">Огноо</th>
+            <th style="width:160px;">Хэн</th>
+            <th style="width:220px;">Үйлдэл</th>
+            <th>Дэлгэрэнгүй</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for lg in logs %}
+          <tr>
+            <td class="mono">
+              {{ lg.created_at.strftime('%Y-%m-%d %H:%M') if lg.created_at else '—' }}
+            </td>
+            <td>{{ lg.username or lg.user or lg.user_name or '—' }}</td>
+            <td>{{ lg.action or lg.event or '—' }}</td>
+            <td class="muted">
+              {{ lg.detail or lg.description or lg.message or (
+                    (lg.field_name ~ ': ' ~ (lg.old_value|default('—')) ~ ' → ' ~ (lg.new_value|default('—')))
+                 ) or '—' }}
+            </td>
+          </tr>
+          {% else %}
+          <tr>
+            <td colspan="4" class="muted">Энэ асуудал дээр засварын түүх бүртгэгдээгүй байна.</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+{% endblock %}

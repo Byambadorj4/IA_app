@@ -1,0 +1,1115 @@
+{% extends "base.html" %}
+{% block title %}Эргэн хяналтын бүртгэл{% endblock %}
+{% block main_class %}main--wide{% endblock %}
+{% block content %}
+
+{% if issue is not defined %}
+<script>location.href="{{ url_for('followups') }}";</script>
+{% endif %}
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;800;900&display=swap" rel="stylesheet">
+
+<style>
+    :root {
+        --ink: #0f172a;
+        --muted: #6b7280;
+        --border: #e5e7eb;
+        --card: #fff;
+        --g: #0b5f57;
+        --g-weak: #eaf7f2;
+        --b: #2563eb;
+        --b-weak: #eef6ff;
+        --a: #f97316;
+        --a-weak: #fff6e9;
+        --p: #6d28d9;
+        --p-weak: #f3e8ff;
+        --shadow: 0 8px 24px rgba(0,0,0,.06);
+        --danger: #ef4444;
+        --danger-weak: #fff1f2;
+        --danger-b: #fecdd3;
+        --warn: #eab308;
+        --warn-weak: #fffbeb;
+        --warn-b: #fde68a;
+        --ok: #22c55e;
+        --ok-weak: #ecfdf5;
+        --ok-b: #bbf7d0;
+        --neutral: #94a3b8;
+        --neutral-weak: #f1f5f9;
+        --neutral-b: #e2e8f0;
+    }
+
+    * {
+        font-family: 'Montserrat',system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
+        box-sizing: border-box;
+    }
+
+    .wrap {
+        max-width: 1180px;
+        margin: 0 auto;
+    }
+
+    .title {
+        font-weight: 900;
+        margin: 6px 0 14px;
+        font-size: 22px;
+        color: var(--ink);
+    }
+
+    .sec {
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: 14px;
+        overflow: hidden;
+        box-shadow: var(--shadow);
+        margin: 14px 0;
+    }
+
+        .sec > header {
+            padding: 12px 16px;
+            font-weight: 900;
+            letter-spacing: .2px;
+            color: #fff;
+        }
+
+        .sec .body {
+            padding: 16px;
+            background: #fff;
+        }
+
+        .sec.c0 > header {
+            background: #111827;
+        }
+
+        .sec.c1 > header {
+            background: var(--b);
+        }
+
+        .sec.c1 .body {
+            background: var(--b-weak);
+        }
+
+        .sec.c2 > header {
+            background: var(--a);
+        }
+
+        .sec.c2 .body {
+            background: var(--a-weak);
+        }
+
+        .sec.c3 > header {
+            background: var(--g);
+        }
+
+        .sec.c3 .body {
+            background: var(--g-weak);
+        }
+
+        .sec.c4 > header {
+            background: var(--p);
+        }
+
+        .sec.c4 .body {
+            background: var(--p-weak);
+        }
+
+    .grid {
+        display: grid;
+        gap: 14px;
+    }
+
+    .g2 {
+        grid-template-columns: repeat(2,1fr);
+    }
+
+    .g3 {
+        grid-template-columns: repeat(3,1fr);
+    }
+
+    @media(max-width:1100px) {
+        .g3 {
+            grid-template-columns: repeat(2,1fr);
+        }
+    }
+
+    @media(max-width:780px) {
+        .g2, .g3 {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    .full {
+        grid-column: 1/-1;
+    }
+
+    .field {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        height: 100%;
+    }
+
+    label {
+        display: block;
+        margin: 2px 0 6px;
+        font-weight: 900;
+        color: var(--ink);
+        font-size: 13px;
+    }
+
+    input, select, textarea {
+        width: 100%;
+        padding: 10px 12px;
+        border: 1.5px solid var(--border);
+        border-radius: 12px;
+        background: #fff;
+        color: var(--ink);
+        font-size: 14px;
+        outline: none;
+    }
+
+    input, select {
+        height: 44px;
+    }
+
+    textarea {
+        height: 120px;
+        min-height: 120px;
+        resize: vertical;
+        line-height: 1.45;
+    }
+
+        input:focus, select:focus, textarea:focus {
+            border-color: #0b66c3;
+            box-shadow: 0 0 0 3px rgba(11,102,195,.15);
+        }
+
+    .ro {
+        background: #f8fafc;
+    }
+
+    .helper {
+        font-size: 12px;
+        color: var(--muted);
+        margin-top: 4px;
+    }
+
+    .num-in {
+        text-align: right;
+        font-variant-numeric: tabular-nums;
+    }
+
+    .actions {
+        display: flex;
+        gap: 10px;
+        justify-content: flex-end;
+        margin-top: 14px;
+        flex-wrap: wrap;
+    }
+
+    .btn {
+        background: #0b5f57;
+        color: #fff;
+        border: 0;
+        border-radius: 999px;
+        padding: 10px 16px;
+        font-weight: 900;
+        cursor: pointer;
+    }
+
+        .btn:hover {
+            filter: brightness(1.05);
+        }
+
+    .btn-ghost {
+        background: #fff;
+        border: 1px solid var(--border);
+        border-radius: 999px;
+        padding: 10px 16px;
+        font-weight: 900;
+        text-decoration: none;
+        color: #111827;
+    }
+
+    .mini-btn {
+        background: #fff;
+        border: 1px solid #cbd5e1;
+        border-radius: 999px;
+        padding: 8px 12px;
+        font-weight: 900;
+        cursor: pointer;
+    }
+
+        .mini-btn:hover {
+            filter: brightness(.98);
+        }
+
+        .mini-btn:disabled {
+            opacity: .5;
+            cursor: not-allowed;
+        }
+
+    .evidence-wrap {
+        background: #fff;
+        border: 1px solid rgba(203,213,225,.95);
+        border-radius: 14px;
+        padding: 12px;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .evidence-grid {
+        display: grid;
+        gap: 10px;
+        grid-template-columns: repeat(3,1fr);
+        flex: 1;
+    }
+
+    @media(max-width:1100px) {
+        .evidence-grid {
+            grid-template-columns: repeat(2,1fr);
+        }
+    }
+
+    @media(max-width:780px) {
+        .evidence-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    .evidence-actions {
+        display: flex;
+        gap: 10px;
+        margin-top: 10px;
+        flex-wrap: wrap;
+    }
+
+    .risk-in {
+        font-weight: 900;
+    }
+
+    .risk-high {
+        background: var(--danger-weak) !important;
+        border-color: var(--danger-b) !important;
+        color: #9f1239 !important;
+    }
+
+    .risk-med {
+        background: var(--warn-weak) !important;
+        border-color: var(--warn-b) !important;
+        color: #92400e !important;
+    }
+
+    .risk-low {
+        background: var(--ok-weak) !important;
+        border-color: var(--ok-b) !important;
+        color: #166534 !important;
+    }
+
+    .risk-na {
+        background: var(--neutral-weak) !important;
+        border-color: var(--neutral-b) !important;
+        color: #334155 !important;
+    }
+
+    @keyframes blinkRed {
+        0%,100% {
+            box-shadow: 0 0 0 0 rgba(239,68,68,.0);
+        }
+
+        50% {
+            box-shadow: 0 0 0 5px rgba(239,68,68,.22);
+        }
+    }
+
+    .blink-high {
+        animation: blinkRed 1s ease-in-out infinite;
+    }
+
+    .tiles {
+        display: grid;
+        grid-template-columns: repeat(3,1fr);
+        gap: 12px;
+        margin: 14px 16px 0;
+        padding-bottom: 16px;
+    }
+
+    @media(max-width:780px) {
+        .tiles {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    .tile {
+        border-radius: 18px;
+        padding: 14px 16px;
+        color: #fff;
+        box-shadow: 0 10px 22px rgba(2,6,23,.08);
+        min-height: 96px;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+    }
+
+        .tile .t-label {
+            font-weight: 900;
+            font-size: 13px;
+            opacity: .92;
+        }
+
+        .tile .t-value {
+            font-weight: 900;
+            font-size: 26px;
+            line-height: 1.1;
+        }
+
+        .tile.blue {
+            background: #0a69c9;
+        }
+
+        .tile.green {
+            background: #16a34a;
+        }
+
+        .tile.yellow {
+            background: #f59e0b;
+        }
+
+        .tile.red {
+            background: #ef4444;
+        }
+
+    .mailbox {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+        align-items: flex-end;
+        justify-content: flex-end;
+        margin-top: 8px;
+        padding: 10px;
+        border: 1px dashed rgba(148,163,184,.55);
+        border-radius: 14px;
+        background: rgba(255,255,255,.65);
+    }
+
+        .mailbox .col {
+            min-width: 260px;
+            flex: 1;
+        }
+
+        .mailbox .hint {
+            font-size: 12px;
+            font-weight: 900;
+            color: var(--muted);
+            margin: 0 0 6px;
+        }
+
+    .btn-mail {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 10px 14px;
+        border-radius: 999px;
+        font-weight: 900;
+        border: 1px solid #bfe9de;
+        background: #e8f7f3;
+        color: #075e55;
+        cursor: pointer;
+        white-space: nowrap;
+    }
+
+        .btn-mail:hover {
+            filter: brightness(.98);
+        }
+
+    .row2 {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 14px;
+        align-items: end;
+    }
+
+    @media(max-width:780px) {
+        .row2 {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+
+{% set loss_amt_raw = (issue.financial_loss_amount
+                   or issue.money_loss_amount
+                   or issue.loss_amount
+                   or issue.money_amount
+                   or '0') %}
+
+{% set loss_amt_clean = (loss_amt_raw|string)
+    |replace('₮','')
+    |replace('MNT','')
+    |replace('mnt','')
+    |replace(' ','')
+    |replace(',','')
+%}
+{% set loss_amt_num = (loss_amt_clean|float) %}
+
+{% set has_loss_flag = ((issue.has_actual_loss or '')|string)|trim %}
+{% set has_loss = (has_loss_flag == 'Тийм') or (loss_amt_num > 0) %}
+
+{% set issue_text_view = (issue.issue or issue.detail_issue or '') %}
+{% set rec_text_view = (issue.recommendation or issue.issue_text or '') %}
+
+<div class="wrap">
+    <div class="title">Эргэн хяналтын бүртгэл</div>
+
+    <form method="POST" action="{{ url_for('followup_submit', issue_id=issue.id) }}" enctype="multipart/form-data">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+        <div class="sec c0">
+            <header>Ерөнхий мэдээлэл</header>
+            <div class="body grid g2">
+                <div class="field">
+                    <label>Компанийн нэр</label>
+                    <input class="ro" value="{{ issue.company_name or '' }}" readonly>
+                </div>
+                <div class="field">
+                    <label>Асуудал бүртгэсэн огноо</label>
+                    <input class="ro" value="{{ issue.identified_date.strftime('%Y-%m-%d') if issue.identified_date else (issue.created_at.strftime('%Y-%m-%d') if issue.created_at else '') }}" readonly>
+                </div>
+            </div>
+        </div>
+
+        <div class="sec c1">
+            <header>1. Асуудал, зөвлөмж</header>
+            <div class="body grid g3">
+                <div class="field full">
+                    <label>Илэрсэн асуудал</label>
+                    <textarea class="ro" readonly>{{ issue_text_view }}</textarea>
+                </div>
+
+                <div class="field">
+                    <label>Эрсдэлийн ангилал</label>
+                    <input class="ro" value="{{ issue.risk_classification or '' }}" readonly>
+                </div>
+
+                <div class="field">
+                    <label>Анхны эрсдэлийн түвшин</label>
+                    <input id="initRisk" class="ro risk-in" value="{{ issue.residual_level or '' }}" readonly>
+                </div>
+
+                <div class="field">
+                    <label>Оноо</label>
+                    <input class="ro num-in" value="{{ issue.residual_score or '' }}" readonly>
+                </div>
+
+                <div class="field">
+                    <label>Анхны мөнгөн хохирол (₮)</label>
+                    <input class="ro num-in" id="initLossAmt" value="{{ loss_amt_raw }}" readonly>
+                    <div class="helper">Хэрэв анх мөнгөн дүн бүртгээгүй бол 0 байна.</div>
+                </div>
+
+                <div class="field full">
+                    <label>Зөвлөмж</label>
+                    <textarea class="ro" readonly>{{ rec_text_view }}</textarea>
+                </div>
+            </div>
+        </div>
+
+        <div class="sec c2">
+            <header>2. Зөвлөмжийн хэрэгжилт</header>
+            <div class="body grid g3">
+
+                <div class="field full">
+                    <div class="mailbox">
+                        <div class="col">
+                            <div class="hint">Хүлээн авагчийн мэйл (компани)</div>
+                            <input id="toEmailFollowup" placeholder="И-мэйл хаяг бичнэ үү">
+                        </div>
+                        <button type="button" class="btn-mail" onclick="openFollowupOutlookDraft()">📧 И-Мэйл илгээх</button>
+                    </div>
+                </div>
+
+                {% set trt_type = (followup.action_type if followup else '') %}
+                <div class="field">
+                    <label>Арга хэмжээний төрөл</label>
+                    <select name="trt_type" required>
+                        <option value="" disabled {{ 'selected' if not trt_type else '' }}>— Сонгоно уу —</option>
+                        <option value="Эрсдэлээс зайлсхийх" {{ 'selected' if trt_type=='Эрсдэлээс зайлсхийх' else '' }}>Эрсдэлээс зайлсхийх</option>
+                        <option value="Эрсдэлийг шилжүүлэх" {{ 'selected' if trt_type=='Эрсдэлийг шилжүүлэх' else '' }}>Эрсдэлийг шилжүүлэх</option>
+                        <option value="Эрсдэлийг бууруулах" {{ 'selected' if trt_type=='Эрсдэлийг бууруулах' else '' }}>Эрсдэлийг бууруулах</option>
+                        <option value="Эрсдэлийг хадгалах" {{ 'selected' if trt_type=='Эрсдэлийг хадгалах' else '' }}>Эрсдэлийг хадгалах</option>
+                    </select>
+                </div>
+
+                {% set trt_lvl = (followup.target_level if followup else '') %}
+                <div class="field">
+                    <label>Зорилтот түвшин</label>
+                    <select name="trt_target_level" required>
+                        <option value="" disabled {{ 'selected' if not trt_lvl else '' }}>— Сонгоно уу —</option>
+                        <option value="Хүлээн зөвшөөрөх түвшинд" {{ 'selected' if trt_lvl=='Хүлээн зөвшөөрөх түвшинд' else '' }}>Хүлээн зөвшөөрөх түвшинд</option>
+                        <option value="Хүлээн зөвшөөрөх түвшингээс дээш" {{ 'selected' if trt_lvl=='Хүлээн зөвшөөрөх түвшингээс дээш' else '' }}>Хүлээн зөвшөөрөх түвшингээс дээш</option>
+                    </select>
+                </div>
+
+                <div class="field">
+                    <label>Шаардлагатай нөөц</label>
+                    <input name="required_resource" value="{{ followup.required_resource if followup and followup.required_resource is defined else '' }}">
+                </div>
+
+                <div class="field">
+                    <label>Шаардлагатай төсөв, хөрөнгө</label>
+                    <input class="num-in numfmt" name="required_budget" inputmode="numeric" placeholder="0"
+                           value="{{ followup.required_budget if followup and followup.required_budget is defined else '' }}">
+                </div>
+
+                <div class="field">
+                    <label>Гүйцэтгэх удирдлагын тушаалаар хариуцах нэгж</label>
+                    <input name="responsible_unit" value="{{ followup.responsible_unit if followup and followup.responsible_unit is defined else '' }}">
+                </div>
+
+                {% set ap = (followup.action_plan if followup else '') %}
+                <div class="field full">
+                    <label>Зөвлөмжийг хэрэгжүүлэх арга хэмжээ</label>
+                    <textarea name="action_plan">{{ ap }}</textarea>
+                </div>
+
+                {% set bd = (followup.board_date.strftime('%Y-%m-%d') if followup and followup.board_date else '') %}
+                <div class="field">
+                    <label>ТУЗ-ийн тогтоол гарсан огноо</label>
+                    <input type="date" id="board_date" name="board_date" value="{{ bd }}">
+                </div>
+
+                {% set dl = (followup.deadline.strftime('%Y-%m-%d') if followup and followup.deadline else '') %}
+                <div class="field">
+                    <label>Хэрэгжүүлэх эцсийн хугацаа</label>
+                    <input type="date" id="deadline" name="deadline" value="{{ dl }}">
+                </div>
+
+                <div class="field">
+                    <label>Үүрэг даалгаврын хэрэгжилтийн хугацаа</label>
+                    <input class="ro" id="workdays" readonly value="">
+                </div>
+
+                {% set note = (followup.note if followup else '') %}
+                <div class="field full">
+                    <label>Хэрэгжилт</label>
+                    <textarea name="impl_desc">{{ note }}</textarea>
+                </div>
+
+                {% set ip = (followup.impl_percent if followup else '') %}
+                <div class="field">
+                    <label>Хэрэгжилтийн хувь</label>
+                    <select name="impl_percent" required>
+                        <option value="" disabled {{ 'selected' if not ip else '' }}>— Сонгоно уу —</option>
+                        <option value="0" {{ 'selected' if ip=='0' else '' }}>0%</option>
+                        <option value="50" {{ 'selected' if ip=='50' else '' }}>50%</option>
+                        <option value="100" {{ 'selected' if ip=='100' else '' }}>100%</option>
+                    </select>
+                </div>
+
+                {% set th = (followup.target_hit if followup else '') %}
+                <div class="field full">
+                    <div class="row2">
+                        <div class="field">
+                            <label>Зорилтдоо хүрсэн эсэх</label>
+                            <select name="trt_target_hit" required>
+                                <option value="" disabled {{ 'selected' if not th else '' }}>— Сонгоно уу —</option>
+                                <option value="Зорилтдоо хүрсэн" {{ 'selected' if th=='Зорилтдоо хүрсэн' else '' }}>Зорилтдоо хүрсэн</option>
+                                <option value="Зорилтдоо хүрээгүй" {{ 'selected' if th=='Зорилтдоо хүрээгүй' else '' }}>Зорилтдоо хүрээгүй</option>
+                                <option value="Хугацаа болоогүй" {{ 'selected' if th=='Хугацаа болоогүй' else '' }}>Хугацаа болоогүй</option>
+                            </select>
+                        </div>
+
+                        {% if has_loss %}
+                        <div class="field">
+                            <label>Мөнгөн хохирол бууруулсан дүн (₮)</label>
+                            <input class="num-in numfmt"
+                                   name="reduced_amount"
+                                   inputmode="numeric"
+                                   placeholder="0"
+                                   value="{{ followup.reduced_amount if followup and followup.reduced_amount is defined else '' }}">
+                            <div class="helper">Анхны хохирлын дүн байгаа үед л гарна.</div>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="field full">
+                    <label>Нотлох баримт</label>
+                    <div class="evidence-wrap">
+                        <div id="evidenceBox" class="evidence-grid">
+                            <div><input type="file" name="evidence_files" accept=".pdf,.doc,.docx,.xls,.xlsx,.png,.jpg,.jpeg"></div>
+                        </div>
+                        <div class="evidence-actions">
+                            <button type="button" class="mini-btn" id="btnAddEvidence">+ Файл нэмэх</button>
+                            <button type="button" class="mini-btn" id="btnRemoveEvidence">– Хасах</button>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="sec c3">
+            <header>3. Аудиторын дүгнэлт</header>
+            <div class="body grid g3">
+                {% set ac = (followup.auditor_conclusion if followup else '') %}
+                <div class="field full">
+                    <label>Аудиторын дүгнэлт</label>
+                    <textarea name="auditor_conclusion">{{ ac }}</textarea>
+                </div>
+
+                {% set fi = (followup.fully_implemented if followup else '') %}
+                <div class="field">
+                    <label>Зөвлөмж бүрэн хэрэгжсэн эсэх</label>
+                    <select name="fully_implemented" required>
+                        <option value="" disabled {{ 'selected' if not fi else '' }}>— Сонгоно уу —</option>
+                        <option value="Тийм" {{ 'selected' if fi=='Тийм' else '' }}>Тийм</option>
+                        <option value="Үгүй" {{ 'selected' if fi=='Үгүй' else '' }}>Үгүй</option>
+                    </select>
+                </div>
+
+                {% set ot = (followup.on_time if followup and followup.on_time is defined else '') %}
+                <div class="field">
+                    <label>Хугацаандаа хэрэгжсэн эсэх</label>
+                    <select name="on_time" required>
+                        <option value="" disabled {{ 'selected' if not ot else '' }}>— Сонгоно уу —</option>
+                        <option value="Хугацаандаа" {{ 'selected' if ot=='Хугацаандаа' else '' }}>Хугацаандаа</option>
+                        <option value="Хугацаа хэтэрсэн" {{ 'selected' if ot=='Хугацаа хэтэрсэн' else '' }}>Хугацаа хэтэрсэн</option>
+                        <option value="Хугацаа болоогүй" {{ 'selected' if ot=='Хугацаа болоогүй' else '' }}>Хугацаа болоогүй</option>
+                    </select>
+                </div>
+
+                <div class="field">
+                    <label>Дүгнэлт гаргасан аудитор</label>
+                    {% set an = (followup.auditor_name if followup else '') %}
+                    <select name="auditor_name" required>
+                        <option value="" disabled {{ 'selected' if not an else '' }}>— Сонгоно уу —</option>
+                        {% for a in AUDITORS %}
+                        <option value="{{ a }}" {{ 'selected' if an==a else '' }}>{{ a }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                {% set fu_text = (followup.follow_up if followup else '') %}
+                <div class="field full">
+                    <label>Дараагийн эргэн хяналтаар анхаарах зүйл</label>
+                    <textarea name="follow_up">{{ fu_text }}</textarea>
+                </div>
+
+                <div class="field full">
+                    <label>Аудиторын нотлох баримт</label>
+                    <div class="evidence-wrap">
+                        <div id="audEvidenceBox" class="evidence-grid">
+                            <div><input type="file" name="auditor_evidence_files" accept=".pdf,.doc,.docx,.xls,.xlsx,.png,.jpg,.jpeg"></div>
+                        </div>
+                        <div class="evidence-actions">
+                            <button type="button" class="mini-btn" id="btnAddAudEvidence">+ Файл нэмэх</button>
+                            <button type="button" class="mini-btn" id="btnRemoveAudEvidence">– Хасах</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="sec c4" id="secR5">
+            <header>4. Үлдэгдэл эрсдэлийн үнэлгээ</header>
+
+            <div class="body grid g3">
+                <div class="field">
+                    <label>Санхүүгийн нөлөөлөл*</label>
+                    <select name="r5_financial" onchange="r5Preview()" required>
+                        {% set v=(followup.r5_financial if followup else '') %}
+                        <option value="" disabled {{ 'selected' if not v else '' }}>— Сонгоно уу —</option>
+                        <option value="1" {{ 'selected' if v=='1' else '' }}>Тэг буюу маш бага</option>
+                        <option value="2" {{ 'selected' if v=='2' else '' }}>250,000-аас доош алдагдал</option>
+                        <option value="3" {{ 'selected' if v=='3' else '' }}>250,001–5,000,000 алдагдал</option>
+                        <option value="4" {{ 'selected' if v=='4' else '' }}>5,000,001–50,000,000 алдагдал</option>
+                        <option value="5" {{ 'selected' if v=='5' else '' }}>50,000,001-с дээш алдагдал</option>
+                    </select>
+                </div>
+
+                <div class="field">
+                    <label>Хууль, дүрэм, журмын зохицуулалт*</label>
+                    <select name="r5_regulatory" onchange="r5Preview()" required>
+                        {% set v=(followup.r5_regulatory if followup else '') %}
+                        <option value="" disabled {{ 'selected' if not v else '' }}>— Сонгоно уу —</option>
+                        <option value="1" {{ 'selected' if v=='1' else '' }}>Зохицуулалтын ямар нэгэн шаардлагыг зөрчөөгүй, бүрэн мөрддөг</option>
+                        <option value="2" {{ 'selected' if v=='2' else '' }}>Зохицуулалтын шаардлагыг бага зэрэг мөрдөөгүй</option>
+                        <option value="3" {{ 'selected' if v=='3' else '' }}>Дээд шатны байгууллагын шаардлагыг хэд хэдэн шаардлагыг мөрдөөгүй зөрчдөг</option>
+                        <option value="4" {{ 'selected' if v=='4' else '' }}>Дээд шатны байгууллагын шаардлагыг олон шаардлагыг мөрдөөгүй</option>
+                        <option value="5" {{ 'selected' if v=='5' else '' }}>Зохицуулагч байгууллагын шаардлагаар компани үйл ажиллагагаа зогссон.</option>
+                    </select>
+                </div>
+
+                <div class="field">
+                    <label>Харилцагч, үйлчлүүлэгчид нөлөөлөх нөлөөлөл*</label>
+                    <select name="r5_stakeholder" onchange="r5Preview()" required>
+                        {% set v=(followup.r5_stakeholder if followup else '') %}
+                        <option value="" disabled {{ 'selected' if not v else '' }}>— Сонгоно уу —</option>
+                        <option value="1" {{ 'selected' if v=='1' else '' }}>Тэг буюу сонирхогч талтай үл ялиг маргаан үүсэх</option>
+                        <option value="2" {{ 'selected' if v=='2' else '' }}>Ажилтан эсхүл газар нэгжүүдтэй харилцах харилцаанд сөрөг нөлөөлөл үүсэх</option>
+                        <option value="3" {{ 'selected' if v=='3' else '' }}>Бусад үйлчилгээ үзүүлэгч байгууллага гэх мэт сонирхогч талуудтай харилцах харилцаанд сөрөг нөлөөлөл үүсэх</option>
+                        <option value="4" {{ 'selected' if v=='4' else '' }}>Байгууллага, бүх үйлчилгээ үзүүлэгч  сонирхогч талуудтай харилцах харилцаанд сөрөг нөлөөлөл үүсэх</option>
+                        <option value="5" {{ 'selected' if v=='5' else '' }}>Сонирхогч талуудтай харилцах харилцаанд сөрөг нөлөөлөл үүсэх</option>
+                    </select>
+                </div>
+
+                <div class="field">
+                    <label>Төлөвлөгөө, гүйцэтгэлд нөлөөлөх нөлөөлөл*</label>
+                    <select name="r5_operation" onchange="r5Preview()" required>
+                        {% set v=(followup.r5_operation if followup else '') %}
+                        <option value="" disabled {{ 'selected' if not v else '' }}>— Сонгоно уу —</option>
+                        <option value="1" {{ 'selected' if v=='1' else '' }}>Тэг буюу үйл ажиллагаа, төлөвлөгөөнд төдийлөн нөлөөлөхгүй</option>
+                        <option value="2" {{ 'selected' if v=='2' else '' }}>Ажилтны хариуцаж буй үйл ажиллагаа, төлөвлөгөөнд өөрчлөлт орох</option>
+                        <option value="3" {{ 'selected' if v=='3' else '' }}>Газар нэгжийн хэрэгжүүлж буй үйл ажиллагаа, төлөвлөгөөнд өөрчлөлт орох/түр зогсоож тодорхой хугацаагаар хойшлуулахад хүрэх</option>
+                        <option value="4" {{ 'selected' if v=='4' else '' }}>Газар нэгжийн хэрэгжүүлж буй үйл ажиллагаа, төлөвлөгөө тодорхойгүй хугацаагаар хойшлогдох/ихээхэн хэмжээний нэмэлт хөрөнгө, санхүүжилт шаардагдах</option>
+                        <option value="5" {{ 'selected' if v=='5' else '' }}>Бизнес төлөвлөгөө, стратегийн үйл ажиллагаа, төлөвлөгөө огт биелэх боломжгүй байдалд хүрэх, бүтэлгүйтэх</option>
+                    </select>
+                </div>
+
+                <div class="field">
+                    <label>Эрүүл мэнд, амь насанд нөлөөлөх нөлөөлөл*</label>
+                    <select name="r5_health" onchange="r5Preview()" required>
+                        {% set v=(followup.r5_health if followup else '') %}
+                        <option value="" disabled {{ 'selected' if not v else '' }}>— Сонгоно уу —</option>
+                        <option value="1" {{ 'selected' if v=='1' else '' }}>Эрүүл мэндэд сөрөг нөлөөгүй</option>
+                        <option value="2" {{ 'selected' if v=='2' else '' }}>Эрүүл мэндэд бага түвшинд сөргөөр нөлөөлөх</option>
+                        <option value="3" {{ 'selected' if v=='3' else '' }}>Эрүүл мэндэд дунд зэрэг түвшинд сөргөөр нөлөөлөх</option>
+                        <option value="4" {{ 'selected' if v=='4' else '' }}>Эрүүл мэндэд өндөр түвшинд сөргөөр нөлөөлөх</option>
+                        <option value="5" {{ 'selected' if v=='5' else '' }}>Эрүүл мэндэд маш өндөр түвшинд сөргөөр нөлөөлөх</option>
+                    </select>
+                </div>
+
+                <div class="field">
+                    <label>Эрсдэл тохиолдох магадлал*</label>
+                    <select name="r5_probability" onchange="r5Preview()" required>
+                        {% set v=(followup.r5_probability if followup else '') %}
+                        <option value="" disabled {{ 'selected' if not v else '' }}>— Сонгоно уу —</option>
+                        <option value="1" {{ 'selected' if v=='1' else '' }}>R – Маш бага</option>
+                        <option value="2" {{ 'selected' if v=='2' else '' }}>R – Бага</option>
+                        <option value="3" {{ 'selected' if v=='3' else '' }}>R – Болзошгүй</option>
+                        <option value="4" {{ 'selected' if v=='4' else '' }}>R – Тохиолдоно</option>
+                        <option value="5" {{ 'selected' if v=='5' else '' }}>R – Байнга</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="tiles">
+                <div class="tile blue">
+                    <div class="t-label">Үлдэгдэл эрсдэлийн үнэлгээний үр дүн</div>
+                    <div class="t-value" id="r5_total">—</div>
+                </div>
+
+                <div class="tile green" id="tile_level">
+                    <div class="t-label">Үнэлгээний үр дүн</div>
+                    <div class="t-value" id="r5_level_badge">—</div>
+                </div>
+
+                <div class="tile blue" id="tile_rank">
+                    <div class="t-label">Хийж гүйцэтгэх алхам</div>
+                    <div class="t-value" id="r5_rank">—</div>
+                </div>
+            </div>
+
+            <input type="hidden" name="residual_score" id="residual_score" value="{{ followup.residual_score if followup else '' }}">
+            <input type="hidden" name="residual_level" id="residual_level" value="{{ followup.residual_level if followup else '' }}">
+            <input type="hidden" name="action_rank" id="action_rank" value="{{ followup.action_rank if followup else '' }}">
+        </div>
+
+        <div class="actions">
+            <a href="{{ url_for('followups') }}" class="btn-ghost">Буцах</a>
+            <button type="submit" class="btn">Хадгалах</button>
+        </div>
+    </form>
+</div>
+
+<script>
+    const onceFlags = { initHigh: false, r5High: false };
+
+    function normalizeRiskText(value) {
+        return String(value || '').trim().toLowerCase();
+    }
+
+    function applyRiskInputStyle(el, value) {
+        if (!el) return;
+
+        el.classList.remove('risk-high', 'risk-med', 'risk-low', 'risk-na', 'blink-high');
+
+        const v = normalizeRiskText(value);
+
+        if (v.includes('өндөр')) {
+            el.classList.add('risk-high', 'blink-high');
+            if (!onceFlags.initHigh) {
+                onceFlags.initHigh = true;
+            }
+            return;
+        }
+
+        if (v.includes('дунд')) {
+            el.classList.add('risk-med');
+            return;
+        }
+
+        if (v.includes('бага')) {
+            el.classList.add('risk-low');
+            return;
+        }
+
+        el.classList.add('risk-na');
+    }
+
+    async function openFollowupOutlookDraft(){
+        const inp = document.getElementById('toEmailFollowup');
+        const to = (inp?.value || '').trim();
+        if(!to){
+            alert('Хүлээн авагчийн мэйлийг оруулна уу.');
+            inp?.focus();
+            return;
+        }
+
+        const base = "{{ url_for('outlook_draft_com', issue_id=issue.id) }}";
+        const url  = base + "?to=" + encodeURIComponent(to);
+
+        try{
+            const r = await fetch(url, {
+                method: "GET",
+                cache: "no-store",
+                headers: { "Accept": "application/json" }
+            });
+
+            const txt = await r.text();
+            let d = null;
+
+            try {
+                d = JSON.parse(txt);
+            } catch(e) {
+                d = null;
+            }
+
+            if(!d || d.ok !== true){
+                const msg = (d && (d.error || d.message)) ? (d.error || d.message) : txt;
+                alert("Outlook draft үүсгэхэд алдаа гарлаа:\n\n" + msg);
+                return;
+            }
+
+            alert('✅ Outlook draft нээгдлээ. (Outlook дээрээс илгээнэ)');
+        }catch(e){
+            alert('Outlook draft үүсгэхэд алдаа гарлаа.');
+        }
+    }
+
+    function fmtComma(v) {
+        const raw = String(v || '').replace(/[^\d]/g, '');
+        if (!raw) return '';
+        return raw.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+    }
+
+    document.querySelectorAll('.numfmt').forEach(inp => {
+        if (inp.hasAttribute('readonly')) {
+            inp.value = fmtComma(inp.value);
+            return;
+        }
+        inp.addEventListener('input', e => {
+            e.target.value = fmtComma(e.target.value);
+        });
+        if (inp.value) inp.value = fmtComma(inp.value);
+    });
+
+    let evCount = 1;
+    const evBox = document.getElementById('evidenceBox');
+    const btnAdd = document.getElementById('btnAddEvidence');
+    const btnRem = document.getElementById('btnRemoveEvidence');
+
+    function rebuildEvButtons() {
+        if (!btnAdd || !btnRem) return;
+        btnRem.disabled = (evCount <= 1);
+        btnAdd.disabled = (evCount >= 5);
+    }
+
+    rebuildEvButtons();
+
+    btnAdd?.addEventListener('click', () => {
+        if (evCount >= 5 || !evBox) return;
+        evCount += 1;
+        const div = document.createElement('div');
+        div.innerHTML = `<input type="file" name="evidence_files" accept=".pdf,.doc,.docx,.xls,.xlsx,.png,.jpg,.jpeg">`;
+        evBox.appendChild(div);
+        rebuildEvButtons();
+    });
+
+    btnRem?.addEventListener('click', () => {
+        if (evCount <= 1 || !evBox || !evBox.lastElementChild) return;
+        evBox.removeChild(evBox.lastElementChild);
+        evCount -= 1;
+        rebuildEvButtons();
+    });
+
+    let audEvCount = 1;
+    const audEvBox = document.getElementById('audEvidenceBox');
+    const btnAddAud = document.getElementById('btnAddAudEvidence');
+    const btnRemAud = document.getElementById('btnRemoveAudEvidence');
+
+    function rebuildAudEvButtons(){
+        if(!btnAddAud || !btnRemAud) return;
+        btnRemAud.disabled = (audEvCount <= 1);
+        btnAddAud.disabled = (audEvCount >= 5);
+    }
+
+    rebuildAudEvButtons();
+
+    btnAddAud?.addEventListener('click', ()=>{
+        if(audEvCount >= 5 || !audEvBox) return;
+        audEvCount += 1;
+        const div = document.createElement('div');
+        div.innerHTML = `<input type="file" name="auditor_evidence_files" accept=".pdf,.doc,.docx,.xls,.xlsx,.png,.jpg,.jpeg">`;
+        audEvBox.appendChild(div);
+        rebuildAudEvButtons();
+    });
+
+    btnRemAud?.addEventListener('click', ()=>{
+        if(audEvCount <= 1 || !audEvBox || !audEvBox.lastElementChild) return;
+        audEvBox.removeChild(audEvBox.lastElementChild);
+        audEvCount -= 1;
+        rebuildAudEvButtons();
+    });
+
+    const bd = document.getElementById('board_date');
+    const dl = document.getElementById('deadline');
+    const wd = document.getElementById('workdays');
+
+    function businessDaysBetween(start, end) {
+        if (!(start instanceof Date) || !(end instanceof Date)) return '';
+        if (isNaN(start.getTime()) || isNaN(end.getTime())) return '';
+        let s = new Date(start);
+        let e = new Date(end);
+        if (s > e) {
+            const t = s;
+            s = e;
+            e = t;
+        }
+        let days = 0;
+        for (let d = new Date(s); d <= e; d.setDate(d.getDate() + 1)) {
+            const w = d.getDay();
+            if (w !== 0 && w !== 6) days++;
+        }
+        return String(days);
+    }
+
+    function calcWorkdays() {
+        if (!wd) return;
+        const s = bd?.value ? new Date(bd.value) : null;
+        const e = dl?.value ? new Date(dl.value) : null;
+        if (!s || !e) {
+            wd.value = '';
+            return;
+        }
+        wd.value = businessDaysBetween(s, e);
+    }
+
+    bd?.addEventListener('change', calcWorkdays);
+    dl?.addEventListener('change', calcWorkdays);
+
+    function setTileClass(el, cls) {
+        if (!el) return;
+        el.classList.remove('blue', 'green', 'yellow', 'red', 'blink-high');
+        el.classList.add(cls);
+    }
+
+    function r5Preview() {
+        const v = (name) => parseInt((document.querySelector(`[name="${name}"]`)?.value || '0'), 10) || 0;
+
+        const a = v('r5_financial');
+        const b = v('r5_regulatory');
+        const c = v('r5_stakeholder');
+        const d = v('r5_operation');
+        const e = v('r5_health');
+        const p = v('r5_probability');
+
+        const totalBox = document.getElementById('r5_total');
+        const levelBox = document.getElementById('r5_level_badge');
+        const rankBox = document.getElementById('r5_rank');
+        const tileLevel = document.getElementById('tile_level');
+        const tileRank = document.getElementById('tile_rank');
+
+        if (!totalBox || !levelBox || !rankBox) return;
+
+        if (!a || !b || !c || !d || !e || !p) {
+            totalBox.textContent = '—';
+            levelBox.textContent = '—';
+            rankBox.textContent = '—';
+
+            const rs = document.getElementById('residual_score');
+            const rl = document.getElementById('residual_level');
+            const ar = document.getElementById('action_rank');
+
+            if (rs) rs.value = '';
+            if (rl) rl.value = '';
+            if (ar) ar.value = '';
+
+            setTileClass(tileLevel, 'green');
+            setTileClass(tileRank, 'blue');
+            tileLevel?.classList.remove('blink-high');
+            return;
+        }
+
+        const total = (a + b + c + d + e) * p;
+        totalBox.textContent = total + ' оноо';
+
+        let level = 'Бага';
+        let rank = 'Эрэмбэ-3';
+
+        if (total >= 75) {
+            level = 'Өндөр';
+            rank = 'Эрэмбэ-1';
+            setTileClass(tileLevel, 'red');
+            tileLevel?.classList.add('blink-high');
+
+            if (!onceFlags.r5High) {
+                onceFlags.r5High = true;
+                alert('🚨 Үлдэгдэл эрсдэлийн түвшин "Өндөр" гарлаа.');
+            }
+        } else if (total >= 16) {
+            level = 'Дунд';
+            rank = 'Эрэмбэ-2';
+            setTileClass(tileLevel, 'yellow');
+            tileLevel?.classList.remove('blink-high');
+        } else {
+            level = 'Бага';
+            rank = 'Эрэмбэ-3';
+            setTileClass(tileLevel, 'green');
+            tileLevel?.classList.remove('blink-high');
+        }
+
+        setTileClass(tileRank, 'blue');
+
+        levelBox.textContent = level;
+        rankBox.textContent = rank;
+
+        const rs = document.getElementById('residual_score');
+        const rl = document.getElementById('residual_level');
+        const ar = document.getElementById('action_rank');
+
+        if (rs) rs.value = total;
+        if (rl) rl.value = level;
+        if (ar) ar.value = rank;
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        const initRisk = document.getElementById('initRisk');
+        applyRiskInputStyle(initRisk, initRisk?.value);
+
+        const initLoss = document.getElementById('initLossAmt');
+        if(initLoss) initLoss.value = fmtComma(initLoss.value);
+
+        calcWorkdays();
+
+        document.querySelectorAll(
+            '[name="r5_financial"],[name="r5_regulatory"],[name="r5_stakeholder"],[name="r5_operation"],[name="r5_health"],[name="r5_probability"]'
+        ).forEach(el => el.addEventListener('change', r5Preview));
+
+        r5Preview();
+    });
+</script>
+
+{% endblock %}

@@ -1,0 +1,330 @@
+{% extends "base.html" %}
+{% block title %}Эрхийн зохицуулалт{% endblock %}
+{% block main_class %}main--wide{% endblock %}
+{% block content %}
+
+<style>
+    .page {
+        max-width: 1400px;
+        margin: 0 auto;
+    }
+
+    .title {
+        font-size: 22px;
+        margin: 6px 0 10px;
+    }
+
+    .sub {
+        font-size: 12px;
+        color: #64748b;
+        margin: 0 0 12px;
+    }
+
+    .wrap {
+        background: #fff;
+        border: 1px solid #e5e7eb;
+        border-radius: 16px;
+        box-shadow: 0 12px 28px rgba(2,6,23,.06);
+        overflow: hidden;
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        table-layout: fixed;
+    }
+
+    th, td {
+        padding: 12px;
+        border-bottom: 1px solid #f1f5f9;
+        font-size: 13px;
+    }
+
+    th {
+        background: #fafcff;
+        text-align: center;
+        font-size: 12.5px;
+        white-space: nowrap;
+    }
+
+    td {
+        text-align: center;
+        vertical-align: top;
+    }
+
+    .small {
+        font-size: 12px;
+        color: #64748b;
+    }
+
+    .pill {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 5px 10px;
+        border-radius: 999px;
+        border: 1px solid #e5e7eb;
+        background: #fff;
+        font-size: 12px;
+        white-space: nowrap;
+        min-width: 74px;
+    }
+
+        .pill.green {
+            background: #ecfdf5;
+            border-color: #bbf7d0;
+            color: #166534;
+        }
+
+        .pill.red {
+            background: #fff1f2;
+            border-color: #fecdd3;
+            color: #9f1239;
+        }
+
+        .pill.gray {
+            background: #f1f5f9;
+            border-color: #e2e8f0;
+            color: #334155;
+        }
+
+    form {
+        margin: 0;
+    }
+
+    .actions-box {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        align-items: center;
+    }
+
+    .actions-row {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .reset-form {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .btnx {
+        height: 34px;
+        padding: 0 12px;
+        border-radius: 999px;
+        border: 1px solid transparent;
+        cursor: pointer;
+        font-size: 13px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 116px;
+        white-space: nowrap;
+        line-height: 1;
+    }
+
+    .btn-admin {
+        background: #eef6ff;
+        border-color: #cfe3ff;
+        color: #0b66c3;
+    }
+
+    .btn-revoke {
+        background: #fff7ed;
+        border-color: #fed7aa;
+        color: #9a3412;
+    }
+
+    .btn-block {
+        background: #fff1f2;
+        border-color: #fecdd3;
+        color: #9f1239;
+    }
+
+    .btn-unblock {
+        background: #ecfdf5;
+        border-color: #bbf7d0;
+        color: #166534;
+    }
+
+    .btn-reset {
+        background: #f5f3ff;
+        border-color: #ddd6fe;
+        color: #6d28d9;
+        min-width: 96px;
+    }
+
+    .btn-delete {
+        background: #7f1d1d;
+        border-color: #7f1d1d;
+        color: #fff;
+        min-width: 140px;
+    }
+
+    .reset-input {
+        height: 34px;
+        min-width: 150px;
+        width: 150px;
+        padding: 0 12px;
+        border: 1px solid #dbe2ea;
+        border-radius: 999px;
+        font-size: 13px;
+        outline: none;
+        text-align: center;
+    }
+
+        .reset-input:focus {
+            border-color: #93c5fd;
+            box-shadow: 0 0 0 3px rgba(59,130,246,.12);
+        }
+
+    th:nth-child(1), td:nth-child(1) {
+        width: 90px;
+    }
+
+    th:nth-child(2), td:nth-child(2) {
+        width: 200px;
+    }
+
+    th:nth-child(3), td:nth-child(3) {
+        width: 240px;
+    }
+
+    th:nth-child(4), td:nth-child(4) {
+        width: 150px;
+    }
+
+    th:nth-child(5), td:nth-child(5) {
+        width: 140px;
+    }
+
+    th:nth-child(6), td:nth-child(6) {
+        width: auto;
+    }
+
+    @media (max-width: 1200px) {
+        .wrap {
+            overflow-x: auto;
+        }
+
+        table {
+            min-width: 1120px;
+        }
+    }
+</style>
+
+<div class="page">
+    <div class="title">Эрхийн зохицуулалт</div>
+    <div class="sub">Админ эрх олгох/цуцлах, хэрэглэгч block/unblock хийх, нууц үг reset хийх, шаардлагатай тохиолдолд хэрэглэгч устгах.</div>
+
+    <div class="wrap">
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Нэвтрэх нэр</th>
+                    <th>Имэйл</th>
+                    <th>Одоогийн эрх</th>
+                    <th>Төлөв</th>
+                    <th>Үйлдэл</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                {% for u in users %}
+                {% set blocked = (u.is_blocked | default(false)) %}
+                <tr>
+                    <td class="small">#{{ u.id }}</td>
+                    <td>{{ u.username }}</td>
+                    <td class="small">{{ u.email }}</td>
+
+                    <td>
+                        {% if u.is_admin %}
+                        <span class="pill green">Админ</span>
+                        {% else %}
+                        <span class="pill gray">Энгийн</span>
+                        {% endif %}
+                    </td>
+
+                    <td>
+                        {% if blocked %}
+                        <span class="pill red">Block</span>
+                        {% else %}
+                        <span class="pill green">Идэвхтэй</span>
+                        {% endif %}
+                    </td>
+
+                    <td>
+                        <div class="actions-box">
+
+                            {% if u.id == current_user.id %}
+                            <span class="small">(Өөрийн эрхийг эндээс өөрчлөхгүй)</span>
+                            {% else %}
+
+                            <div class="actions-row">
+                                {% if u.is_admin %}
+                                <form method="POST" action="{{ url_for('revoke_admin', user_id=u.id) }}">
+                                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                    <button class="btnx btn-revoke" type="submit">Админ эрх цуцлах</button>
+                                </form>
+                                {% else %}
+                                <form method="POST" action="{{ url_for('grant_admin', user_id=u.id) }}">
+                                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                    <button class="btnx btn-admin" type="submit">Админ эрх олгох</button>
+                                </form>
+                                {% endif %}
+
+                                {% if blocked %}
+                                <form method="POST" action="{{ url_for('unblock_user', user_id=u.id) }}">
+                                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                    <button class="btnx btn-unblock" type="submit">Unblock</button>
+                                </form>
+                                {% else %}
+                                <form method="POST"
+                                      action="{{ url_for('block_user', user_id=u.id) }}"
+                                      onsubmit="return confirm('Энэ хэрэглэгчийг block хийх үү?');">
+                                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                    <button class="btnx btn-block" type="submit">Block хийх</button>
+                                </form>
+                                {% endif %}
+                            </div>
+
+                            <form method="POST"
+                                  action="{{ url_for('reset_user_password', user_id=u.id) }}"
+                                  class="reset-form"
+                                  onsubmit="return confirm('Энэ хэрэглэгчийн нууц үгийг reset хийх үү?');">
+                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                <input class="reset-input"
+                                       type="text"
+                                       name="new_password"
+                                       placeholder="Шинэ нууц үг"
+                                       required>
+                                <button class="btnx btn-reset" type="submit">Нууц үг reset</button>
+                            </form>
+
+                            <form method="POST"
+                                  action="{{ url_for('delete_user', user_id=u.id) }}"
+                                  onsubmit="return confirm('Энэ хэрэглэгчийг бүр мөсөн устгах уу?');">
+                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                <button class="btnx btn-delete" type="submit">Хэрэглэгч устгах</button>
+                            </form>
+
+                            {% endif %}
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+
+        </table>
+    </div>
+</div>
+
+{% endblock %}
